@@ -24,7 +24,6 @@ This is a demo app that shows how to use [OpenAI Embeddings](https://beta.openai
 
 ## Demo Video
 
-
 https://user-images.githubusercontent.com/15852818/209995984-25fefed6-956c-4c8e-90c5-e5a3db310c29.mp4
 
 
