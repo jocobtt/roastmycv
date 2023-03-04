@@ -7,8 +7,7 @@ const Main = ({ children }: { children: React.ReactNode }) => {
     <div className="h-screen bg-gradient-to-b from-[#2e026d] to-[#15162c]">
       <nav className="flex">
         <p className="px-10 py-3 text-xl text-white">
-          Semantic <span className="text-search">Search</span> with OpenAI
-          Embeddings + Pinecone
+          Chat<span className="text-search">BOM</span>
         </p>
         <div className="ml-auto">
           <button
