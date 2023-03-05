@@ -46,7 +46,7 @@ export const query = async ({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Api-Key": process.env.PINECONE_API_KEY,
+      "Api-Key": process.env.PINECONE_API_KEY || "",
     },
     body: JSON.stringify({
       vector,
