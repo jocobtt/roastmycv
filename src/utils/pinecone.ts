@@ -1,6 +1,6 @@
 import { PineconeClient } from "pinecone-client";
 
-export type Metadata = { 
+export type Metadata = Partial<{ 
   book_id: number
   chapter_id: number
   verse_id: number
@@ -19,7 +19,7 @@ export type Metadata = {
   scripture_text: string
   verse_title: string
   verse_short_title: string
- };
+ }>
 
 console.log({
   apiKey: process.env.PINECONE_API_KEY,

@@ -1,14 +1,9 @@
 import { type NextPage } from "next";
-import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import React from "react";
-import Library from "../components/Library";
-
-import { Toaster } from "react-hot-toast";
 
 import Main from "../components/Main";
-import Search from "../components/Search";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation  } from "@tanstack/react-query";
 import { Metadata }  from "../utils/pinecone"
 
 // const Home: NextPage = () => {

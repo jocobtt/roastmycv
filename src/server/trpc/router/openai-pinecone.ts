@@ -19,7 +19,8 @@ export const openAiPinecone = router({
           {
             id,
             values: vectorEmbedding,
-            metadata: { userId: ctx.session.user.id, text, title },
+            // metadata: { userId: ctx.session.user.id, text, title },
+            metadata: {},
           },
         ],
       });
@@ -49,7 +50,7 @@ export const openAiPinecone = router({
         includeMetadata: true,
         vector: vectorEmbedding,
         filter: {
-          userId: ctx.session.user.id,
+          // userId: ctx.session.user.id,
         },
       });
 
