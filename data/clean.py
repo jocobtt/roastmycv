@@ -1,24 +1,26 @@
 import pandas as pd 
 import os 
-#from datasets import load_dataset 
+from datasets import load_dataset 
 
-def clean_data(df):
-    df = pd.read
+def clean_data(data):
+    df = pd.read_csv(data)
     # Drop all data that where book isn't equal to Book of Mormon
-    df = df[df['volume_title'] == 'Book of Mormon']
+    df = df[df['volume_title'] == "Book of Mormon"]
+    # split into test and train sets 
+
     # output df to csv 
-    df.to_csv('lds-scriptures-cleaned.csv', index=False)
+    df.to_csv('lds-scriptures-cleaned.csv', index=True)
     return df.head()
 
-#def upload_to_huggingface(df):
+def upload_to_huggingface(data):
     # log into huggingface 
-#    os.system('huggingface-cli login')
+    #os.system('huggingface-cli login')
     # Upload to huggingface
-#    dataset = load_dataset('book_of_mormon_corpus', data_files='lds-scriptures-cleaned.csv')
-#    dataset.push_to_hub('jbrazzy/book_of_mormon_corpus')
+    dataset = load_dataset('csv', data_files=data)
+    dataset.push_to_hub('jbrazzy/book_of_mormon_corpus')
 
 if __name__ == '__main__':
-    # Read in data
-    df = pd.read_csv('lds-scriptures.csv')
     # Clean data
-    clean_data(df)
+    clean_data('lds-scriptures.csv')
+    # push to huggingface
+    upload_to_huggingface('lds-scriptures-cleaned.csv')
