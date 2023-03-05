@@ -112,7 +112,7 @@ const Home: NextPage = () => {
             </p> */}
             <input onChange={e => setQuestion(e.target.value)} placeholder="Who left Jerusalem with Lehi?" className="flex flex-col border-2 border-black rounded-md p-2" />
             <button onClick={() => mutate()} className="mt-2 mb-6 border-2 border-black rounded-md hover:bg-black hover:text-white">Ask!</button>
-            { status === "loading" ? <p>Loading...</p> : status === "success" ? data.map(answer => {
+            { status === "loading" ? <p>Loading...</p> : status === "success" ? (data as Metadata[]).map(answer => {
               return (
                 <React.Fragment key={answer.verse_id}>
                   <div className="mt-2" />

@@ -3,7 +3,7 @@ import { PineconeClient } from "pinecone-client";
 export type Metadata = { 
   book_id: number
   chapter_id: number
-  verse_ids: number
+  verse_id: number
   volume_title: string
   book_title: string
   volume_long_title: string
