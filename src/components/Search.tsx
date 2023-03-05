@@ -65,23 +65,24 @@ const Search = () => {
           <LoadingResults />
         ) : (
           data?.pineconeSearch.matches?.map((item) => {
-            if (item.metadata.text) {
-              return (
-                <div
-                  className="m-5 w-full bg-white shadow sm:rounded-lg"
-                  key={item.id}
-                >
-                  <div className="flex flex-col items-center px-4 py-5 sm:px-6">
-                    <h3 className="text-lg font-medium leading-6 text-gray-900">
-                      {item.metadata.title}
-                    </h3>
-                    <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                      {item.metadata.text}
-                    </p>
-                  </div>
-                </div>
-              );
-            }
+            // if (item.metadata.text) {
+            //   return (
+            //     <div
+            //       className="m-5 w-full bg-white shadow sm:rounded-lg"
+            //       key={item.id}
+            //     >
+            //       <div className="flex flex-col items-center px-4 py-5 sm:px-6">
+            //         <h3 className="text-lg font-medium leading-6 text-gray-900">
+            //           {item.metadata.title}
+            //         </h3>
+            //         <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            //           {item.metadata.text}
+            //         </p>
+            //       </div>
+            //     </div>
+            //   );
+            // }
+            return <></>
           })
         )}
       </div>
