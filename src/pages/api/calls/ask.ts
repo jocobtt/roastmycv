@@ -55,7 +55,6 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Get top 5 most relevant verses
     stage = 7
-    error = embedding
     const similarEmbeddings = await query({
       vector: embedding,
       topK: 5,
@@ -77,7 +76,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(answers);
   } catch (e) {
     console.log(e);
-    res.status(400).json({ error: (e as Error).message, body: req.body, stage: stage, thing: error });
+    res.status(400).json({ error: e, message: (e as Error).message, body: req.body, stage: stage, thing: error });
   }
 };
 

@@ -81,7 +81,7 @@ export const query = async ({
       vector,
       topK,
       includeMetadata,
-      includeValues: true,
+      includeValues: false,
       namespace: "",
     },
     {
