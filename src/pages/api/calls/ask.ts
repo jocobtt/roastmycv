@@ -66,7 +66,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(answers);
   } catch (e) {
     console.log(e);
-    res.status(400).json({ error: (e as Error).message });
+    res.status(400).json({ error: (e as Error).message, body: req.body });
   }
 };
 
