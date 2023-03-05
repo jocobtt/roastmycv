@@ -4,10 +4,10 @@ const Main = ({ children }: { children: React.ReactNode }) => {
   const { data: authSessionData } = useSession();
 
   return (
-    <div className="h-screen bg-gradient-to-tl from-rose-100 to-teal-100">
-      <nav className="flex">
+    <div className="min-h-screen bg-gradient-to-tl from-rose-100 to-teal-100 pb-4">
+      <nav className="flex justify-center">
         <p className="px-10 py-3 text-xl text-black">
-          Chat<span className="text-grey">BOM</span>
+          Chat<span className="text-grey font-bold">BOM</span>
         </p>
         {/* <div className="ml-auto">
           <button
@@ -18,7 +18,10 @@ const Main = ({ children }: { children: React.ReactNode }) => {
           </button>
         </div> */}
       </nav>
-      <div className="mx-4 px-4 py-16 text-center">{children}</div>
+      {children}
+      <footer className="mt-4 mb-4 flex justify-center">
+        <p className="text-center">Jacob Braswell & Isaac Tai</p>
+      </footer>
     </div>
   );
 };
