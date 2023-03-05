@@ -117,7 +117,7 @@ const Home: NextPage = () => {
                   <Answers {...answer} />
                 </React.Fragment>)
             }) :
-              <pre className="mt-4">{JSON.stringify(data, null, 2)}</pre> 
+              <pre className="mt-4">{data}</pre> 
             }
           </section>
         </section>
