@@ -10,7 +10,6 @@ const questionSchema = z.object({
 const ask = async (req: NextApiRequest, res: NextApiResponse) => {
   // Process question
   try {
-    console.log({swag:  req.body})
     const body = questionSchema.parse(req.body);
     const { text } = body;
 
@@ -23,8 +22,8 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     const response = await createEmbedding(text);
 
     const { embedding, index } = response.data[0] as {
-        embedding: number[],
-        index: number
+      embedding: number[];
+      index: number;
     };
 
     // Get top 5 most relevant verses
@@ -34,11 +33,13 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       includeMetadata: true,
     });
 
-    const answers = (similarEmbeddings as {
+    const answers = (
+      similarEmbeddings as {
         matches: {
-            metadata: Record<string, unknown>
-        }[]
-    }).matches.map((match) => {
+          metadata: Record<string, unknown>;
+        }[];
+      }
+    ).matches.map((match) => {
       return match.metadata;
     });
 

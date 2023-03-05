@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import React from "react";
+import axios from "axios"
 
 import Main from "../components/Main";
 import { useMutation  } from "@tanstack/react-query";
@@ -80,11 +81,10 @@ const Answers = ({
 const Home: NextPage = () => {
   const [question, setQuestion] = React.useState("")
   const { mutate, status, data } = useMutation(["question"], async () => {
-    const res = await fetch("/api/calls/ask", {
-      method: "POST",
-      body: JSON.stringify({ text: question }),
-    });
-    return await res.json();
+    const res = await axios.post('/api/calls/ask', {
+      text: question
+    })
+    return await res.data;
   })
 
 // React.useEffect(() => {
