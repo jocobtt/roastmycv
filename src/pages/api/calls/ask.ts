@@ -10,6 +10,7 @@ const questionSchema = z.object({
 const ask = async (req: NextApiRequest, res: NextApiResponse) => {
   // Process question
   try {
+    console.log({swag:  req.body})
     const body = questionSchema.parse(req.body);
     const { text } = body;
 

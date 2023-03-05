@@ -92,6 +92,9 @@ const Home: NextPage = () => {
 
 // }, [question])
   const answers = React.useMemo(() => {
+    if (!Array.isArray(data)) {
+      return []
+    }
     return data ?? []
   }, [data])
 
