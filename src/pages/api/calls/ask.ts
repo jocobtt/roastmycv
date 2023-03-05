@@ -25,6 +25,7 @@ function isJsonString(str: string) {
 const ask = async (req: NextApiRequest, res: NextApiResponse) => {
   // Process question
   let stage = 0
+  let error = undefined 
   try {
     let body = req.body;
     stage = 1
@@ -54,6 +55,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Get top 5 most relevant verses
     stage = 7
+    error = embedding
     const similarEmbeddings = await query({
       vector: embedding,
       topK: 5,
@@ -75,7 +77,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(answers);
   } catch (e) {
     console.log(e);
-    res.status(400).json({ error: (e as Error).message, body: req.body, stage: stage });
+    res.status(400).json({ error: (e as Error).message, body: req.body, stage: stage, thing: error });
   }
 };
 
