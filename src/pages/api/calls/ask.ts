@@ -21,22 +21,26 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     // });
     const response = await createEmbedding(text);
 
-    const { embedding, index } = response.data[0];
+    const { embedding, index } = response.data[0] as {
+        embedding: number[],
+        index: number
+    };
 
     // Get top 5 most relevant verses
-    console.log("hi 2");
     const similarEmbeddings = await query({
       vector: embedding,
       topK: 5,
       includeMetadata: true,
     });
 
-    console.log("hi 3");
-    const answers = similarEmbeddings.matches.map((match) => {
+    const answers = (similarEmbeddings as {
+        matches: {
+            metadata: Record<string, unknown>
+        }[]
+    }).matches.map((match) => {
       return match.metadata;
     });
 
-    console.log("hi 4");
     res.status(200).json(answers);
   } catch (e) {
     console.log(e);

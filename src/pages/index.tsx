@@ -9,7 +9,7 @@ import { Toaster } from "react-hot-toast";
 import Main from "../components/Main";
 import Search from "../components/Search";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Metadata }  from "./utils/pinecone"
+import { Metadata }  from "../utils/pinecone"
 
 // const Home: NextPage = () => {
 //   const [feature, setFeature] = React.useState<"search" | "library">("search");
