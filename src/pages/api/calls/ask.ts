@@ -7,11 +7,31 @@ const questionSchema = z.object({
   text: z.string().min(2, "Please enter more than 1 character"),
 });
 
+// export const config = {
+//     api: {
+//         bodyParser: false
+//     }
+// }
+
+function isJsonString(str: string) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
 const ask = async (req: NextApiRequest, res: NextApiResponse) => {
   // Process question
   try {
-    const body = questionSchema.parse(req.body);
-    const { text } = body;
+    let body = req.body;
+    if (isJsonString(body)) {
+      body = JSON.parse(req.body);
+    }
+
+    const parsed = questionSchema.parse(body);
+    const { text } = parsed;
 
     console.log("hi 1");
     // Embed question text
