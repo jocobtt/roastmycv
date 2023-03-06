@@ -25,7 +25,7 @@ function isJsonString(str: string) {
 const ask = async (req: NextApiRequest, res: NextApiResponse) => {
   // Process question
   let stage = 0
-  const error = undefined 
+  let error = undefined 
   try {
     let body = req.body;
     stage = 1
