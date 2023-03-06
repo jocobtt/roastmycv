@@ -7,12 +7,6 @@ const questionSchema = z.object({
   text: z.string().min(2, "Please enter more than 1 character"),
 });
 
-// export const config = {
-//     api: {
-//         bodyParser: false
-//     }
-// }
-
 function isJsonString(str: string) {
   try {
     JSON.parse(str);
@@ -25,7 +19,6 @@ function isJsonString(str: string) {
 const ask = async (req: NextApiRequest, res: NextApiResponse) => {
   // Process question
   let stage = 0
-  let error = undefined 
   try {
     let body = req.body;
     stage = 1
@@ -55,9 +48,6 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     
     // Get top 5 most relevant verses
     stage = 7
-    // const similarEmbeddings = await query({
-    const { key, baseURL } = get()
-    error = `stuffs: ${key} ${baseURL}`
     const similarEmbeddings = await query({
       vector: embedding,
       topK: 5,
@@ -79,7 +69,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(answers);
   } catch (e) {
     console.log(e);
-    res.status(400).json({ error: e, message: (e as Error).message, body: req.body, stage: stage, thing: error });
+    res.status(400).json({ error: e, message: (e as Error).message, body: req.body, stage: stage });
   }
 };
 
