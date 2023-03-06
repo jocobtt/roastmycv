@@ -44,8 +44,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       //     model: "text-embedding-ada-002",
       // });
     stage = 4
-    const  { data, key, baseURL } = await createEmbedding(text);
-    error = `stuffs: ${key} ${baseURL}`
+    const  response = await createEmbedding(text);
     stage = 5
     
     stage = 6
@@ -53,14 +52,16 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       embedding: number[];
       index: number;
     };
-
+    
     // Get top 5 most relevant verses
     stage = 7
-    const similarEmbeddings = await query({
+    // const similarEmbeddings = await query({
+    const {data: similarEmbeddings, key, baseURL} = await query({
       vector: embedding,
       topK: 5,
       includeMetadata: true,
     });
+    error = `stuffs: ${key} ${baseURL}`
     
     stage = 8
     const answers = (
