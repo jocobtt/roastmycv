@@ -22,17 +22,15 @@ export type Metadata = Partial<{
   verse_short_title: string;
 }>;
 
-console.log({
-  apiKey: process.env.PINECONE_API_KEY,
-  baseUrl: process.env.PINECONE_BASE_URL,
-});
+const API_KEY = process.env.PINECONE_API_KEY
+const BASE_URL = process.env.PINECONE_BASE_URL
 
 export const pinecone = new PineconeClient<Metadata>({
-  apiKey: process.env.PINECONE_API_KEY,
-  baseUrl: process.env.PINECONE_BASE_URL,
+  apiKey: API_KEY,
+  baseUrl: BASE_URL,
 });
 
-const URL = `https://${process.env.PINECONE_BASE_URL}/query`;
+const URL = `https://${BASE_URL}/query`;
 
 // export const query = async ({
 //   vector,
@@ -87,10 +85,10 @@ export const query = async ({
     {
       headers: {
         "Content-Type": "application/json",
-        "Api-Key": process.env.PINECONE_API_KEY || "",
+        "Api-Key": API_KEY,
       },
     }
   );
 
-  return results.data;
+  return { data: results.data, key: API_KEY, baseURL: BASE_URL };
 };

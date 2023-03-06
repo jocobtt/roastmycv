@@ -44,7 +44,8 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       //     model: "text-embedding-ada-002",
       // });
     stage = 4
-    const response = await createEmbedding(text);
+    const  { data, key, baseURL } = await createEmbedding(text);
+    error = `stuffs: ${key} ${baseURL}`
     stage = 5
     
     stage = 6
