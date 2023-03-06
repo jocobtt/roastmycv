@@ -49,6 +49,10 @@ const URL = `https://${BASE_URL}/query`;
 //   return res
 // }
 
+export const get = () => {
+  return { key: API_KEY, baseURL: BASE_URL }
+}
+
 export const query = async ({
   vector,
   topK,
@@ -90,5 +94,5 @@ export const query = async ({
     }
   );
 
-  return { data: results.data, key: API_KEY, baseURL: BASE_URL };
+  return results.data;
 };

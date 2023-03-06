@@ -1,6 +1,6 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import * as z from "zod";
-import { pinecone, query } from "../../../utils/pinecone";
+import { pinecone, query, get } from "../../../utils/pinecone";
 import { createEmbedding } from "../../../utils/openai";
 
 const questionSchema = z.object({
@@ -56,12 +56,13 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
     // Get top 5 most relevant verses
     stage = 7
     // const similarEmbeddings = await query({
-    const {data: similarEmbeddings, key, baseURL} = await query({
+    const { key, baseURL } = get()
+    error = `stuffs: ${key} ${baseURL}`
+    const similarEmbeddings = await query({
       vector: embedding,
       topK: 5,
       includeMetadata: true,
-    });
-    error = `stuffs: ${key} ${baseURL}`
+    })
     
     stage = 8
     const answers = (
