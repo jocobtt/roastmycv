@@ -1,11 +1,11 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import React from "react";
-import axios from "axios"
+import axios from "axios";
 
 import Main from "../components/Main";
-import { useMutation  } from "@tanstack/react-query";
-import { Metadata }  from "../utils/pinecone"
+import { useMutation } from "@tanstack/react-query";
+import { Metadata } from "../utils/pinecone";
 
 // const Home: NextPage = () => {
 //   const [feature, setFeature] = React.useState<"search" | "library">("search");
@@ -67,36 +67,54 @@ import { Metadata }  from "../utils/pinecone"
 //   );
 // };
 
-const Answers = ({ 
-  book_id, chapter_id, verse_id, volume_title, book_title, volume_long_title, book_long_title, volume_subtitle, book_subtitle, volume_short_title, book_short_title, volume_lds_url, book_lds_url, chapter_number, verse_number, scripture_text, verse_title, verse_short_title
+const Answers = ({
+  book_id,
+  chapter_id,
+  verse_id,
+  volume_title,
+  book_title,
+  volume_long_title,
+  book_long_title,
+  volume_subtitle,
+  book_subtitle,
+  volume_short_title,
+  book_short_title,
+  volume_lds_url,
+  book_lds_url,
+  chapter_number,
+  verse_number,
+  scripture_text,
+  verse_title,
+  verse_short_title,
 }: Partial<Metadata>) => {
   return (
-    <section className="flex flex-col bg-white rounded-md text-left p-2">
-      <p>{book_short_title} {chapter_number}:{verse_number}</p>
+    <section className="flex flex-col rounded-md bg-white p-2 text-left">
+      <p>
+        {book_short_title} {chapter_number}:{verse_number}
+      </p>
       <p>{scripture_text}</p>
     </section>
-  )
-}
+  );
+};
 
 const Home: NextPage = () => {
-  const [question, setQuestion] = React.useState("")
+  const [question, setQuestion] = React.useState("");
   const { mutate, status, data } = useMutation(["question"], async () => {
-    const res = await axios.post('/api/calls/ask', {
-      text: question
-    })
-    return await res.data;
-  })
+    const res = await axios.post("/api/calls/ask", {
+      text: question,
+    });
+    console.log(res.data);
+    return res.data;
+  });
 
-// React.useEffect(() => {
-//   console.log({question})
-
-// }, [question])
-  const answers = React.useMemo(() => {
-    if (!Array.isArray(data)) {
-      return []
+  const { answer, relevantResources } = React.useMemo(() => {
+    console.log({ status, data });
+    if (status === "success") {
+      return { answer: data.answer, relevantResources: data.relevantResources };
     }
-    return data ?? []
-  }, [data])
+
+    return { answer: undefined, relevantResources: [] };
+  }, [status, data]);
 
   return (
     <>
@@ -106,22 +124,44 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Main>
-        <section className="flex flex-col w-screen items-center">
-          <section className="flex flex-col w-96">
+        <section className="flex w-screen flex-col items-center">
+          <section className="flex w-96 flex-col">
             {/* <p className="px-10 py-3 text-black text-3xl">
               Chat<span className="text-grey font-bold">BOM</span>
             </p> */}
-            <input onChange={e => setQuestion(e.target.value)} placeholder="Who left Jerusalem with Lehi?" className="flex flex-col border-2 border-black rounded-md p-2" />
-            <button onClick={() => mutate()} className="mt-2 mb-6 border-2 border-black rounded-md hover:bg-black hover:text-white">Ask!</button>
-            { status === "loading" ? <p>Loading...</p> : status === "success" ? (answers as Metadata[]).map(answer => {
-              return (
-                <React.Fragment key={answer.verse_id}>
-                  <div className="mt-2" />
-                  <Answers {...answer} />
-                </React.Fragment>)
-            }) :
-              <pre className="mt-4">{data}</pre> 
-            }
+            <input
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Who left Jerusalem with Lehi?"
+              className="flex flex-col rounded-md border-2 border-black p-2"
+            />
+            <button
+              onClick={() => mutate()}
+              className="mt-2 mb-6 rounded-md border-2 border-black hover:bg-black hover:text-white"
+              disabled={status === "loading"}
+            >
+              Ask!
+            </button>
+            {status === "loading" ? (
+              <p>Loading...</p>
+            ) : status === "success" ? (
+              <>
+                <section className="flex flex-col rounded-md bg-white p-2 text-left">
+                  <p>🤖 ChatBOM:</p>
+                  <i className="mt-2">{answer}</i>
+                </section>
+                <p className="mt-4">Verses that might be relevant: </p>
+                {relevantResources.map((answer) => {
+                  return (
+                    <React.Fragment key={answer.verse_id}>
+                      <div className="mt-2" />
+                      <Answers {...answer} />
+                    </React.Fragment>
+                  );
+                })}
+              </>
+            ) : (
+              <pre className="mt-4">{data}</pre>
+            )}
           </section>
         </section>
       </Main>
