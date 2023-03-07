@@ -43,12 +43,11 @@ def embed_model(model): # text
     # want chapter and verse vector, return multiple vectors for a person
     # now populate the index 
     # jbrazzy/book_of_mormon_corpus
-    #data = load_dataset("jbrazzy/book_of_mormon_corpus/data") # will want to split this ie. split = "train[:1000]"
-    df = pd.read_csv("lds-scriptures.csv")
-    data_df = df[df['volume_title'] == "Book of Mormon"]
+    data = load_dataset("jbrazzy/book_of_mormon_corpus", split="full_data") 
+    #df = pd.read_csv("lds-scriptures.csv")
+    #data_df = df[df['volume_title'] == "Book of Mormon"]
 
-    # data = load_dataset("csv", data_files="./lds-scriptures-cleaned.csv")
-    data = Dataset.from_pandas(data_df)
+    #data = Dataset.from_pandas(data_df)
 
     # iterate through the dataset and embed each text in batches 
     batch_size = 32 
@@ -146,10 +145,7 @@ def embed_model(model): # text
 
 def test_query(MODEL):
     pinecone.init(api_key=os.getenv("PINECONE_API_KEY"), environment = "us-east1-gcp")
-    # check that our index exists already, if not create it
-    if "chatbom" not in pinecone.list_indexes():
-        pinecone.create_index("chatbom", dimension=1536, metric="cosine")
-    # connect to our index
+    # connect to our index - we don't need the if statement since in this case we are assuming that the index already exists 
     index = pinecone.Index("chatbom")
 
     # test query 
