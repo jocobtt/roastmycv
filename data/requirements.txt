@@ -1,5 +1,7 @@
 pandas 
+numpy
 datasets
 huggingface_hub
 openai
 pinecone-client
+tdqm
