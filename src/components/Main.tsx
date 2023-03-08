@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const Main = ({ children }: { children: React.ReactNode }) => {
@@ -20,7 +21,29 @@ const Main = ({ children }: { children: React.ReactNode }) => {
       </nav>
       {children}
       <footer className="mt-4 mb-4 flex justify-center">
-        <p className="text-center">Jacob Braswell & Isaac Tai</p>
+        <div className="max-w-sm">
+          <p className="text-xs">
+            <i>
+              ChatBOM is not affiliated with or does not reflect the views of
+              the Church of Jesus Christ of Latter-day Saints. AI chatbots are
+              highly random and are prone to mistakes and misuse. It is also not
+              sentient, we promise.
+            </i>
+          </p>
+          <p className="mt-2 flex justify-center text-center">
+            <motion.div whileHover={{ y: -5 }}>
+              <a href="https://www.linkedin.com/in/jacob-braswell/">
+                Jacob Braswell
+              </a>
+            </motion.div>
+            <div className="mx-1">
+              {` `}&{` `}
+            </div>
+            <motion.div whileHover={{ y: -5 }}>
+              <a href="https://www.linkedin.com/in/ztai">Isaac Tai</a>
+            </motion.div>
+          </p>
+        </div>
       </footer>
     </div>
   );
