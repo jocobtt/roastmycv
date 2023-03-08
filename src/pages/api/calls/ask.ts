@@ -149,23 +149,6 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
 
     stage = 10;
     console.log("trying");
-    // const openAIRes = await openai.createChatCompletion({
-    //   model: "gpt-3.5-turbo",
-    //   messages: [
-    //     { role: "system", content: prompt },
-    //     // { role: "user", content: "Who is Captain Moroni?" },
-    //     // {
-    //     //   role: "assistant",
-    //     //   content: `A military commander of the Nephite army. He was a righteous and skilled military commander. He is known for creating the Title of Libery, a standard that he raised to rally the Nephites to defend their liberties from a group of dissenters who wanted to establish their leader as a king.`,
-    //     // },
-    //     { role: "user", content: body },
-    //   ],
-    //   temperature: 0.9,
-    //   max_tokens: 150,
-    //   top_p: 1,
-    //   frequency_penalty: 0.0,
-    //   presence_penalty: 0.6,
-    // });
 
     const openAIRes = await axios.post(
       "https://api.openai.com/v1/chat/completions",

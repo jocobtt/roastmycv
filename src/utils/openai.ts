@@ -9,7 +9,6 @@ const MODEL = "text-embedding-ada-002";
 
 // export const queryLLM = async (text: string) => {
 //   const res = openai.createChatCompletion({
-    
 //     model: "gpt-3.5-turbo",
 //     temperature: 0.9,
 //     max_tokens = 150,
