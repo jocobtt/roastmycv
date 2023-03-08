@@ -74,7 +74,7 @@ const Answers = ({ section, title, text, raw, source, revision_date }) => {
       <p>
         Section {section} - {title}
       </p>
-      <p className="mt-2">{text}</p>
+      <p className="mt-2 whitespace-pre-line">{text.replaceAll(' • ', `\n • `)}</p>
     </section>
   );
 };
