@@ -7,6 +7,7 @@ import { RingLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import { NextPage } from "next";
+import { Delay } from "../components/animation/Delay";
 
 const Answers = ({ section, title, text, raw, source, revision_date }) => {
   return (
@@ -14,25 +15,14 @@ const Answers = ({ section, title, text, raw, source, revision_date }) => {
       <p>
         Section {section} - {title}
       </p>
-      <p className="mt-2 whitespace-pre-line">{text.replaceAll(' • ', `\n • `)}</p>
+      <p className="mt-2 whitespace-pre-line">
+        {text.replaceAll(" • ", `\n • `)}
+      </p>
     </section>
   );
 };
 
-const Loading = () => {
-  return (
-    <motion.div
-      className="flex justify-center"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <RingLoader size={80} className="" />
-    </motion.div>
-  );
-};
-
-const Home: NextPage = () => {
+const Handbook: NextPage = () => {
   const [question, setQuestion] = React.useState("");
   const { mutate, status, data } = useMutation(["question"], async () => {
     const res = await axios.post("/api/calls/ask-handbook", {
@@ -41,6 +31,7 @@ const Home: NextPage = () => {
     console.log(res.data);
     return res.data;
   });
+  const searchRef = React.useRef<HTMLTextAreaElement>();
 
   const { answer, relevantResources } = React.useMemo(() => {
     console.log({ status, data });
@@ -56,54 +47,81 @@ const Home: NextPage = () => {
     mutate();
   };
 
+  const handleKeyDown = (e) => {
+    if (e.which === 13 && !e.shiftKey) {
+      handleSubmit(e);
+    }
+  };
+
+  React.useEffect(() => {
+    searchRef.current.focus();
+  }, []);
+
   return (
     <>
       <Head>
-        <title>ChatBOM - Handbook</title>
+        <title>ChatBOM</title>
         <meta name="description" content="Talk to the scriptures." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Main section="General Handbook">
-        <section className="flex w-screen flex-col items-center">
-          <section className="flex w-96 flex-col">
-            {/* <p className="px-10 py-3 text-black text-3xl">
-              Chat<span className="text-grey font-bold">BOM</span>
-            </p> */}
+        <section className="mt-1 flex w-screen flex-col items-center">
+          <section className="flex w-96 flex-col px-3">
             <form onSubmit={handleSubmit} className="mb-4">
-              <input
+              <textarea
+                ref={searchRef}
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Example: What are General Authorities?"
-                className="flex w-full flex-col rounded-md border-2 border-black p-2"
+                placeholder="Example: Where is the Sword of Laban?"
+                className="flex h-24 w-full resize-none flex-col rounded-md border-2 border-black p-2 text-xl"
               />
               <button
-                className="mt-2  w-full rounded-md border-2 border-black hover:bg-black hover:text-white"
+                className="mt-2 h-12 w-full rounded-md border-2 border-black text-xl hover:bg-black hover:text-white"
                 disabled={status === "loading"}
                 type="submit"
               >
-                {status === "success" || "error"
+                {status === "success" || status === "error"
                   ? "Ask another question!"
                   : "Ask!"}
               </button>
             </form>
             <AnimatePresence>
               {status === "loading" ? (
-                <Loading />
+                <motion.div
+                  key="loading"
+                  className="flex justify-center"
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 50, opacity: 0 }}
+                >
+                  <RingLoader size={80} className="" />
+                </motion.div>
               ) : status === "success" ? (
-                <>
+                <motion.div key="joy">
                   <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
                     <p>🤖 ChatBOM:</p>
                     <i className="mt-4">{answer}</i>
                   </section>
-                  <p className="mt-4">Sections that might be relevant: </p>
-                  {relevantResources.map((answer) => {
-                    return (
-                      <React.Fragment key={answer.verse_id}>
-                        <div className="mt-2" />
-                        <Answers {...answer} />
-                      </React.Fragment>
-                    );
-                  })}
-                </>
+                  <p className="mt-4">Sections that may be relevant: </p>
+                  <AnimatePresence>
+                    <Delay key="relevant-sections" delay={1000}>
+                      {relevantResources.map((answer, index) => {
+                        return (
+                          <Delay key={index} delay={index * 300}>
+                            <div className="mt-2" />
+                            <motion.div
+                              initial={{ y: 100, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              transition={{ y: 100, duration: 0.5 }}
+                            >
+                              <Answers {...answer} />
+                            </motion.div>
+                          </Delay>
+                        );
+                      })}
+                    </Delay>
+                  </AnimatePresence>
+                </motion.div>
               ) : (
                 <pre className="mt-4">{data}</pre>
               )}
@@ -115,4 +133,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Handbook;

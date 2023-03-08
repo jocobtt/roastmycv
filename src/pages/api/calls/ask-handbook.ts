@@ -74,7 +74,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       You will provide answers swiftly, succintly and with conviction. You will answer with a casual, kind and respectful tone. Swearing is completely off limits. 
       Please keep your answers to five sentences maximum, and speak in complete sentences. Stop speaking once your point is made.
       
-      Context that may be useful, pulled from the General Handbook. If applicable, please include the source of the information you are providing.
+      Context that may be useful, pulled from the General Handbook. If you are unsure of your answer, simply say so.
       
       ${answers
         .map((answer) => {
@@ -83,15 +83,6 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
         })
         .join("\n\n")}
     `;
-
-    console.log(
-      answers
-        .map((answer) => {
-          const { section, title, text, raw, source, revision_date } = answer;
-          return `Section ${section}: ${title}\n${text}`;
-        })
-        .join("\n\n")
-    );
 
     // const questions: ChatCompletionRequestMessage[] = [
     //   { role: "user", content: "Who is Captain Moroni?" },
