@@ -7,6 +7,7 @@ import { Metadata } from "../utils/pinecone";
 import { PacmanLoader, RingLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
+import { NextPage } from "next";
 
 // const Home: NextPage = () => {
 //   const [feature, setFeature] = React.useState<"search" | "library">("search");
@@ -148,18 +149,20 @@ const Home: NextPage = () => {
             {/* <p className="px-10 py-3 text-black text-3xl">
               Chat<span className="text-grey font-bold">BOM</span>
             </p> */}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="mb-4">
               <input
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Who left Jerusalem with Lehi?"
                 className="flex w-full flex-col rounded-md border-2 border-black p-2"
               />
               <button
-                className="mt-2 mb-6  w-full rounded-md border-2 border-black hover:bg-black hover:text-white"
+                className="mt-2  w-full rounded-md border-2 border-black hover:bg-black hover:text-white"
                 disabled={status === "loading"}
                 type="submit"
               >
-                Ask!
+                {status === "success" || "error"
+                  ? "Ask another question!"
+                  : "Ask!"}
               </button>
             </form>
             <AnimatePresence>
