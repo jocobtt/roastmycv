@@ -22,7 +22,7 @@ const Main = ({ children }: { children: React.ReactNode }) => {
       {children}
       <footer className="mt-4 mb-4 flex justify-center">
         <div className="max-w-sm">
-          <p className="text-xs">
+          <p className="text-center text-xs">
             <i>
               ChatBOM is not affiliated with or does not reflect the views of
               the Church of Jesus Christ of Latter-day Saints. AI chatbots are
@@ -31,6 +31,7 @@ const Main = ({ children }: { children: React.ReactNode }) => {
             </i>
           </p>
           <p className="mt-2 flex justify-center text-center">
+            <div className="mr-1">by</div>
             <motion.div whileHover={{ y: -5 }}>
               <a href="https://www.linkedin.com/in/jacob-braswell/">
                 Jacob Braswell
