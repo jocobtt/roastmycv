@@ -13,7 +13,7 @@ const Main = ({
   return (
     <div className="min-h-screen bg-gradient-to-tl from-rose-100 to-teal-100 pb-4">
       <nav className="flex justify-center">
-        <p className="px-10 py-3 text-xl text-black">
+        <p className="5x-10 py-3 text-3xl text-black">
           Chat<span className="text-grey font-bold">BOM</span>
           {section ? ` - ${section}` : ""}
         </p>
