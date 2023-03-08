@@ -22,8 +22,8 @@ export type Metadata = Partial<{
   verse_short_title: string;
 }>;
 
-const API_KEY = process.env.PINECONE_API_KEY
-const BASE_URL = process.env.PINECONE_BASE_URL
+const API_KEY = process.env.PINECONE_API_KEY;
+const BASE_URL = process.env.PINECONE_BASE_URL;
 
 export const pinecone = new PineconeClient<Metadata>({
   apiKey: API_KEY,
@@ -50,17 +50,19 @@ const URL = `https://${BASE_URL}/query`;
 // }
 
 export const get = () => {
-  return { key: API_KEY, baseURL: BASE_URL }
-}
+  return { key: API_KEY, baseURL: BASE_URL };
+};
 
 export const query = async ({
   vector,
   topK,
   includeMetadata,
+  filter = undefined,
 }: {
   vector: number[];
   topK: number;
   includeMetadata: boolean;
+  filter?: Record<string, unknown>;
 }) => {
   // const results = await fetch(URL, {
   //   method: "POST",
@@ -85,6 +87,7 @@ export const query = async ({
       includeMetadata,
       includeValues: false,
       namespace: "",
+      filter: filter,
     },
     {
       headers: {

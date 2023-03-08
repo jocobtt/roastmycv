@@ -44,10 +44,10 @@ def embed_model(model): # text
     # now populate the index 
     # jbrazzy/book_of_mormon_corpus
     data = load_dataset("jbrazzy/book_of_mormon_corpus", split="full_data") 
-    #df = pd.read_csv("lds-scriptures.csv")
-    #data_df = df[df['volume_title'] == "Book of Mormon"]
+    df = pd.read_csv("lds-scriptures.csv")
+    # data_df = df[df['volume_title'] == "Book of Mormon"]
 
-    #data = Dataset.from_pandas(data_df)
+    data = Dataset.from_pandas(data_df)
 
     # iterate through the dataset and embed each text in batches 
     batch_size = 32 

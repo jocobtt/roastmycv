@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-const Main = ({ children }: { children: React.ReactNode }) => {
+const Main = ({
+  children,
+  section,
+}: {
+  section?: string;
+  children: React.ReactNode;
+}) => {
   const { data: authSessionData } = useSession();
 
   return (
@@ -9,6 +15,7 @@ const Main = ({ children }: { children: React.ReactNode }) => {
       <nav className="flex justify-center">
         <p className="px-10 py-3 text-xl text-black">
           Chat<span className="text-grey font-bold">BOM</span>
+          {section ? ` - ${section}` : ""}
         </p>
         {/* <div className="ml-auto">
           <button
