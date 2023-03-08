@@ -145,6 +145,15 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
         content:
           "Sacred text of Latter-day Saints about ancient Americas and Jesus Christ.",
       },
+      {
+        role: "user",
+        content: "Who is the harlot Isabel?",
+      },
+      {
+        role: "assistant",
+        content:
+          "Isabel is mentioned in the book of Alma. She tempted Corianton into committing sexual sins.",
+      },
     ];
 
     stage = 10;

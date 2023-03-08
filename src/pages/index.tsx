@@ -8,6 +8,7 @@ import { RingLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import { NextPage } from "next";
+import { Delay } from "../components/animation/Delay";
 
 const Answers = ({
   book_id,
@@ -39,20 +40,6 @@ const Answers = ({
   );
 };
 
-const Loading = () => {
-  return (
-    <motion.div
-      key="loading"
-      className="flex justify-center"
-      initial={{ x: 300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: -300, opacity: 0 }}
-    >
-      <RingLoader size={80} className="" />
-    </motion.div>
-  );
-};
-
 const Home: NextPage = () => {
   const [question, setQuestion] = React.useState("");
   const { mutate, status, data } = useMutation(["question"], async () => {
@@ -62,7 +49,8 @@ const Home: NextPage = () => {
     console.log(res.data);
     return res.data;
   });
-  const searchRef = React.useRef<HTMLInputElement>();
+  const searchRef = React.useRef<HTMLTextAreaElement>();
+  const [show, setShow] = React.useState(false);
 
   const { answer, relevantResources } = React.useMemo(() => {
     console.log({ status, data });
@@ -78,10 +66,14 @@ const Home: NextPage = () => {
     mutate();
   };
 
-  React.useEffect(() => {
-    if (searchRef.current) {
-      searchRef.current.focus();
+  const handleKeyDown = (e) => {
+    if (e.which === 13 && !e.shiftKey) {
+      handleSubmit(e);
     }
+  };
+
+  React.useEffect(() => {
+    searchRef.current.focus();
   }, []);
 
   return (
@@ -92,20 +84,18 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Main>
-        <section className="flex w-screen flex-col items-center px-4">
-          <section className="flex w-96 flex-col">
-            {/* <p className="px-10 py-3 text-black text-3xl">
-              Chat<span className="text-grey font-bold">BOM</span>
-            </p> */}
+        <section className="mt-1 flex w-screen flex-col items-center">
+          <section className="flex w-96 flex-col px-3">
             <form onSubmit={handleSubmit} className="mb-4">
-              <input
+              <textarea
                 ref={searchRef}
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Who left Jerusalem with Lehi?"
-                className="flex w-full flex-col rounded-md border-2 border-black p-2"
+                placeholder="Example: Where is the Sword of Laban?"
+                className="flex h-24 w-full resize-none flex-col rounded-md border-2 border-black p-2 text-xl"
               />
               <button
-                className="mt-2  w-full rounded-md border-2 border-black hover:bg-black hover:text-white"
+                className="mt-2 h-12 w-full rounded-md border-2 border-black text-xl hover:bg-black hover:text-white"
                 disabled={status === "loading"}
                 type="submit"
               >
@@ -114,6 +104,7 @@ const Home: NextPage = () => {
                   : "Ask!"}
               </button>
             </form>
+            {/* <button onClick={() => setShow((prev) => !prev)}>toggle</button> */}
             <AnimatePresence>
               {status === "loading" ? (
                 <motion.div
@@ -126,41 +117,40 @@ const Home: NextPage = () => {
                   <RingLoader size={80} className="" />
                 </motion.div>
               ) : status === "success" ? (
-                <motion.section
-                  initial={{ y: 100, opacity: 0 }}
-                  animate={{
-                    y: 0,
-                    opacity: 1,
-                    transition: {
-                      duration: 1,
-                      staggerChildren: 0.5,
-                    },
-                  }}
+                <motion.div
+                  key="joy"
+                  // initial={{ opacity: 0 }}
+                  // animate={{
+                  //   opacity: 1,
+                  //   transition: {
+                  //     duration: 800,
+                  //   },
+                  // }}
                 >
                   <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
                     <p>🤖 ChatBOM:</p>
                     <i className="mt-4">{answer}</i>
                   </section>
                   <p className="mt-4">Verses that might be relevant: </p>
-                  {relevantResources.map((answer) => {
-                    return (
-                      <motion.div
-                        initial={{
-                          opacity: 0,
-                          y: 100,
-                        }}
-                        animate={{
-                          opacity: 1,
-                          y: 0,
-                        }}
-                        key={answer.verse_id}
-                      >
-                        <div className="mt-2" />
-                        <Answers {...answer} />
-                      </motion.div>
-                    );
-                  })}
-                </motion.section>
+                  <AnimatePresence>
+                    <Delay key="relevant-sections" delay={1000}>
+                      {relevantResources.map((answer, index) => {
+                        return (
+                          <Delay key={index} delay={index * 300}>
+                            <div className="mt-2" />
+                            <motion.div
+                              initial={{ y: 100, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              transition={{ y: 100, duration: 0.5 }}
+                            >
+                              <Answers {...answer} />
+                            </motion.div>
+                          </Delay>
+                        );
+                      })}
+                    </Delay>
+                  </AnimatePresence>
+                </motion.div>
               ) : (
                 <pre className="mt-4">{data}</pre>
               )}
