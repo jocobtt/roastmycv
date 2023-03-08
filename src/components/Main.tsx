@@ -37,7 +37,7 @@ const Main = ({
               sentient, we promise.
             </i>
           </p>
-          <p className="mt-2 flex justify-center text-center">
+          <div className="mt-2 flex justify-center text-center">
             <div className="mr-1">by</div>
             <motion.div whileHover={{ y: -5 }}>
               <a href="https://www.linkedin.com/in/jacob-braswell/">
@@ -50,7 +50,7 @@ const Main = ({
             <motion.div whileHover={{ y: -5 }}>
               <a href="https://www.linkedin.com/in/ztai">Isaac Tai</a>
             </motion.div>
-          </p>
+          </div>
         </div>
       </footer>
     </div>
