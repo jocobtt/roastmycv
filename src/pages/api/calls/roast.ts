@@ -50,22 +50,8 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       roast: is "Founder" codename for "unemployed"? I wish you the best I guess...
       roast: it's almost like you enjoy using the words "delivered", "authored" and "built". Want some resume with your buzzwords?
       roast: brigham young university? I bet their parties are fun...
-      ${body.prevRoasts?.map((roast) => `roast: ${roast}`).join("\n")}
+      ${body.prevRoasts?.map((roast) => `roast: ${roast}`).join("\n") ?? ""}
     `;
-
-    console.log(prompt);
-
-    // const questions: ChatCompletionRequestMessage[] = [
-    //   {
-    //     role: "user",
-    //     content: "Give me a 10 word summary of the Book of Mormon?",
-    //   },
-    //   {
-    //     role: "assistant",
-    //     content:
-    //       "Sacred text of Latter-day Saints about ancient Americas and Jesus Christ.",
-    //   },
-    // ];
 
     stage = 3;
     console.log("trying");

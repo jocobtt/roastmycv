@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 
 import Main from "../components/Main";
@@ -8,17 +8,46 @@ import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import { NextPage } from "next";
 import { Delay } from "../components/animation/Delay";
+import { Monoton, IBM_Plex_Mono } from "@next/font/google";
+import Typewriter from "typewriter-effect";
 
-const ScriptLine = ({ text }) => {
+const monoton = Monoton({
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const ibm = IBM_Plex_Mono({
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const ScriptLine = ({ text, delay }) => {
   return (
-    <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
-      <p className="mt-2 whitespace-pre-line">{text}</p>
+    <section
+      className={`flex flex-col rounded-md p-2 text-left lowercase ${ibm.className} text-white`}
+    >
+      <p className="mt-2 whitespace-pre-line"></p>
+      <Typewriter
+        onInit={(typewriter) => {
+          typewriter
+            .pauseFor(delay + 100)
+            .typeString(text)
+            .callFunction((state) => {
+              state.elements.cursor.style.animation = "none";
+              state.elements.cursor.style.display = "none";
+            })
+            .start();
+        }}
+        options={{
+          delay: 30,
+        }}
+      />
     </section>
   );
 };
 
-const Roast = ({ id, resume, prevRoasts, addRoast }) => {
-  const ref = React.useRef<HTMLParagraphElement>();
+const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
+  console.log({ prevRoasts });
   const { status, data } = useQuery(
     ["question", id],
     async () => {
@@ -30,6 +59,8 @@ const Roast = ({ id, resume, prevRoasts, addRoast }) => {
     },
     {
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      cacheTime: Infinity,
     }
   );
 
@@ -42,9 +73,6 @@ const Roast = ({ id, resume, prevRoasts, addRoast }) => {
     if (status === "loading") {
       return "...";
     }
-    if (status === "success") {
-      ref.current.scrollIntoView();
-    }
     const lower = data.answer.charAt(0).toLowerCase() + data.answer.slice(1);
     return lower;
   }, [status, data]);
@@ -55,8 +83,28 @@ const Roast = ({ id, resume, prevRoasts, addRoast }) => {
     }
   }, [addRoast, prevRoasts, text]);
   return (
-    <section className="flex flex-col rounded-md bg-white/50 p-2 text-left lowercase">
-      <p ref={ref}>{text}</p>
+    <section
+      className={`flex flex-col rounded-md p-2 text-left lowercase text-white ${ibm.className}`}
+    >
+      {status === "loading" ? (
+        <p>...</p>
+      ) : (
+        <Typewriter
+          onInit={(typewriter) => {
+            typewriter
+              .pauseFor(delay)
+              .typeString(text)
+              .callFunction((state) => {
+                state.elements.cursor.style.animation = "none";
+                state.elements.cursor.style.display = "none";
+              })
+              .start();
+          }}
+          options={{
+            delay: 30,
+          }}
+        />
+      )}
     </section>
   );
 };
@@ -118,10 +166,12 @@ const Handbook: NextPage = () => {
         <meta name="description" content="Talk to the scriptures." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen bg-gradient-to-tl from-rose-100 to-teal-100 pt-8 pb-4">
+      <div className="to-blackbg-gradient-to-b min-h-screen bg-gradient-to-b  from-gray-700 via-gray-900  to-black pt-4 pb-4 pb-32">
         <nav className="flex justify-center">
-          <p className="5x-10 max-w-sm py-3 text-3xl text-black">
-            Roast my resume. Please.
+          <p
+            className={`5x-10 max-w-sm py-3 text-3xl text-white ${monoton.className}`}
+          >
+            roast my resume
           </p>
           {/* <div className="ml-auto">
           <button
@@ -140,12 +190,11 @@ const Handbook: NextPage = () => {
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Input your resume here."
-                className="flex h-24 w-full resize-none flex-col rounded-md border-2 border-black p-2 text-xl"
+                className="flex h-48 w-full resize-none  scroll-m-0 flex-col rounded-md border-2 border-white bg-black p-2 text-xl text-white"
               />
               {status === "idle" ? (
                 <button
-                  className="mt-2 h-12 w-full rounded-md border-2 border-black text-xl hover:bg-black hover:text-white"
-                  disabled={status === "loading"}
+                  className="mt-2 h-12 w-full rounded-md border-2 border-white text-xl text-white hover:bg-white hover:text-black"
                   type="submit"
                 >
                   roast me, I guess.
@@ -164,7 +213,7 @@ const Handbook: NextPage = () => {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: 50, opacity: 0 }}
                 >
-                  <RingLoader size={80} className="" />
+                  <RingLoader size={80} className="" color="white" />
                 </motion.div>
               ) : status === "success" ? (
                 <motion.div key="joy">
@@ -176,14 +225,14 @@ const Handbook: NextPage = () => {
                   <AnimatePresence>
                     {/* <Delay key="relevant-sections" delay={1000}> */}
                     <motion.div
-                      initial={{ y: 100, opacity: 0 }}
+                      initial={{ y: 0, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                     >
                       {script.map((answer, index) => {
                         return (
                           <motion.div
                             key={answer}
-                            initial={{ y: 100, opacity: 0 }}
+                            initial={{ y: 0, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{
                               y: 100,
@@ -200,9 +249,14 @@ const Handbook: NextPage = () => {
                                 addRoast={(roast) =>
                                   setPrevRoasts((prev) => [...prev, roast])
                                 }
+                                delay={7000 * index}
                               />
                             ) : (
-                              <ScriptLine key={index} text={answer} />
+                              <ScriptLine
+                                key={index}
+                                text={answer}
+                                delay={7000 * index}
+                              />
                             )}
                           </motion.div>
                         );
