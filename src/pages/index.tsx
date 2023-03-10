@@ -2,69 +2,104 @@ import React from "react";
 import axios from "axios";
 
 import Main from "../components/Main";
-import { useMutation } from "@tanstack/react-query";
-import { Metadata } from "../utils/pinecone";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { RingLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import { NextPage } from "next";
 import { Delay } from "../components/animation/Delay";
 
-const Answers = ({
-  book_id,
-  chapter_id,
-  verse_id,
-  volume_title,
-  book_title,
-  volume_long_title,
-  book_long_title,
-  volume_subtitle,
-  book_subtitle,
-  volume_short_title,
-  book_short_title,
-  volume_lds_url,
-  book_lds_url,
-  chapter_number,
-  verse_number,
-  scripture_text,
-  verse_title,
-  verse_short_title,
-}: Partial<Metadata>) => {
+const ScriptLine = ({ text }) => {
   return (
     <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
-      <p>
-        {book_short_title} {chapter_number}:{verse_number}
-      </p>
-      <p>{scripture_text}</p>
+      <p className="mt-2 whitespace-pre-line">{text}</p>
     </section>
   );
 };
 
-const Home: NextPage = () => {
-  const [question, setQuestion] = React.useState("");
-  const { mutate, status, data } = useMutation(["question"], async () => {
-    const res = await axios.post("/api/calls/ask", {
-      text: question,
-    });
-    console.log(res.data);
-    return res.data;
-  });
-  const searchRef = React.useRef<HTMLTextAreaElement>();
-  const [show, setShow] = React.useState(false);
-
-  const { answer, relevantResources } = React.useMemo(() => {
-    console.log({ status, data });
-    if (status === "success") {
-      return { answer: data.answer, relevantResources: data.relevantResources };
+const Roast = ({ id, resume, prevRoasts, addRoast }) => {
+  const ref = React.useRef<HTMLParagraphElement>();
+  const { status, data } = useQuery(
+    ["question", id],
+    async () => {
+      const res = await axios.post("/api/calls/roast", {
+        text: resume,
+        prevRoasts: prevRoasts,
+      });
+      return res.data;
+    },
+    {
+      refetchOnWindowFocus: false,
     }
+  );
 
-    return { answer: undefined, relevantResources: [] };
+  React.useEffect(() => {
+    const scrollingElement = document.scrollingElement || document.body;
+    scrollingElement.scrollTop = scrollingElement.scrollHeight;
+  }, []);
+
+  const text = React.useMemo(() => {
+    if (status === "loading") {
+      return "...";
+    }
+    if (status === "success") {
+      ref.current.scrollIntoView();
+    }
+    const lower = data.answer.charAt(0).toLowerCase() + data.answer.slice(1);
+    return lower;
   }, [status, data]);
+
+  React.useEffect(() => {
+    if (text !== "..." && prevRoasts.includes(text) === false) {
+      addRoast(text);
+    }
+  }, [addRoast, prevRoasts, text]);
+  return (
+    <section className="flex flex-col rounded-md bg-white/50 p-2 text-left lowercase">
+      <p ref={ref}>{text}</p>
+    </section>
+  );
+};
+
+const script = [
+  "loading your career history...",
+  "analyzing your work experience...",
+  "...this is a lot.",
+  "[[ROAST1]]",
+  "we're off to a great start...",
+  "[[ROAST2]]",
+  `this is my favorite thing to read on a ${new Date().toLocaleString("en-us", {
+    weekday: "long",
+  })}...`,
+  "[[ROAST3]]",
+  "are you sure you didn't just copy-paste this resume from a LinkedIn template?",
+  "[[ROAST4]]",
+  "I'm not saying I'm bored but....",
+  "[[ROAST5]]",
+  "that's it. i'm done.",
+  "i guess the important thing is that you believe in yourself...",
+  "bye. i can't wait to do this again",
+];
+
+const Handbook: NextPage = () => {
+  const [question, setQuestion] = React.useState("");
+  const [status, setStatus] = React.useState("idle");
+  const [show, setShow] = React.useState(false);
+  const [prevRoasts, setPrevRoasts] = React.useState([]);
+  const searchRef = React.useRef<HTMLTextAreaElement>();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate();
+    setStatus("loading");
   };
+
+  React.useEffect(() => {
+    if (status === "loading") {
+      setTimeout(() => {
+        setStatus("success");
+      }, 2000);
+    }
+  }, [status]);
 
   const handleKeyDown = (e) => {
     if (e.which === 13 && !e.shiftKey) {
@@ -79,11 +114,24 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>ChatBOM</title>
+        <title>Roast My Resume</title>
         <meta name="description" content="Talk to the scriptures." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Main>
+      <div className="min-h-screen bg-gradient-to-tl from-rose-100 to-teal-100 pt-8 pb-4">
+        <nav className="flex justify-center">
+          <p className="5x-10 max-w-sm py-3 text-3xl text-black">
+            Roast my resume. Please.
+          </p>
+          {/* <div className="ml-auto">
+          <button
+            className="bg-gray/10 hover:bg-gray/20 rounded-full px-10 py-3 font-semibold text-white no-underline transition"
+            onClick={authSessionData ? () => signOut() : () => signIn("google")}
+          >
+            {authSessionData ? "Sign out" : "Sign in"}
+          </button>
+        </div> */}
+        </nav>
         <section className="mt-1 flex w-screen flex-col items-center">
           <section className="flex w-96 flex-col px-3">
             <form onSubmit={handleSubmit} className="mb-4">
@@ -91,20 +139,22 @@ const Home: NextPage = () => {
                 ref={searchRef}
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Example: Where is the Sword of Laban?"
+                placeholder="Input your resume here."
                 className="flex h-24 w-full resize-none flex-col rounded-md border-2 border-black p-2 text-xl"
               />
-              <button
-                className="mt-2 h-12 w-full rounded-md border-2 border-black text-xl hover:bg-black hover:text-white"
-                disabled={status === "loading"}
-                type="submit"
-              >
-                {status === "success" || status === "error"
-                  ? "Ask another question!"
-                  : "Ask!"}
-              </button>
+              {status === "idle" ? (
+                <button
+                  className="mt-2 h-12 w-full rounded-md border-2 border-black text-xl hover:bg-black hover:text-white"
+                  disabled={status === "loading"}
+                  type="submit"
+                >
+                  roast me, I guess.
+                </button>
+              ) : (
+                <>{null}</>
+              )}
             </form>
-            {/* <button onClick={() => setShow((prev) => !prev)}>toggle</button> */}
+            {/* <button onClick={() => setShow(true)}>Start</button> */}
             <AnimatePresence>
               {status === "loading" ? (
                 <motion.div
@@ -117,49 +167,60 @@ const Home: NextPage = () => {
                   <RingLoader size={80} className="" />
                 </motion.div>
               ) : status === "success" ? (
-                <motion.div
-                  key="joy"
-                  // initial={{ opacity: 0 }}
-                  // animate={{
-                  //   opacity: 1,
-                  //   transition: {
-                  //     duration: 800,
-                  //   },
-                  // }}
-                >
-                  <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
+                <motion.div key="joy">
+                  {/* <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
                     <p>🤖 ChatBOM:</p>
                     <i className="mt-4">{answer}</i>
                   </section>
-                  <p className="mt-4">Verses that might be relevant: </p>
+                  <p className="mt-4">Sections that may be relevant: </p> */}
                   <AnimatePresence>
-                    <Delay key="relevant-sections" delay={1000}>
-                      {relevantResources.map((answer, index) => {
+                    {/* <Delay key="relevant-sections" delay={1000}> */}
+                    <motion.div
+                      initial={{ y: 100, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                    >
+                      {script.map((answer, index) => {
                         return (
-                          <Delay key={index} delay={index * 300}>
-                            <div className="mt-2" />
-                            <motion.div
-                              initial={{ y: 100, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              transition={{ y: 100, duration: 0.5 }}
-                            >
-                              <Answers {...answer} />
-                            </motion.div>
-                          </Delay>
+                          <motion.div
+                            key={answer}
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{
+                              y: 100,
+                              duration: 0.5,
+                              delay: 7 * index,
+                            }}
+                            className="mt-2"
+                          >
+                            {answer.includes("ROAST") ? (
+                              <Roast
+                                id={index}
+                                resume={question}
+                                prevRoasts={prevRoasts}
+                                addRoast={(roast) =>
+                                  setPrevRoasts((prev) => [...prev, roast])
+                                }
+                              />
+                            ) : (
+                              <ScriptLine key={index} text={answer} />
+                            )}
+                          </motion.div>
                         );
                       })}
-                    </Delay>
+                    </motion.div>
+                    {/* </Delay> */}
                   </AnimatePresence>
                 </motion.div>
               ) : (
-                <pre className="mt-4">{data}</pre>
+                <></>
+                // <pre className="mt-4">{data}</pre>
               )}
             </AnimatePresence>
           </section>
         </section>
-      </Main>
+      </div>
     </>
   );
 };
 
-export default Home;
+export default Handbook;
