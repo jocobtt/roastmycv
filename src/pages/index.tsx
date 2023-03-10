@@ -65,8 +65,8 @@ const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
   );
 
   React.useEffect(() => {
-    const scrollingElement = document.scrollingElement || document.body;
-    scrollingElement.scrollTop = scrollingElement.scrollHeight;
+    // const scrollingElement = document.scrollingElement || document.body;
+    // scrollingElement.scrollTop = scrollingElement.scrollHeight;
   }, []);
 
   const text = React.useMemo(() => {
