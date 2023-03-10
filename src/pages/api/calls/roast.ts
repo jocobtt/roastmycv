@@ -29,28 +29,30 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       body = JSON.parse(req.body);
     }
 
+    const prev =
+      body.prevRoasts?.map((roast) => `roast: ${roast}`).join("\n") ?? "";
+    console.log({ prev });
     stage = 2;
     // Construct the prompt
     const prompt = `
       You are the world's foremost expert on script writing and copywriting. A few years ago a project called pudding.cool went viral online for roasting people's music listening habits.
 
-      Your job is to create a version of this that is suitable for roasting career resumes and CVs.
+      Your job is to create a version of this for roasting career resumes and CVs.
 
+      Directions: 
       Tone should be extremely passive aggressive, monotone. Act bored, as if you do this all day and can’t wait to go home. 
-      
-      ONE SENTENCE MAXIMUM. Shorter sentences are better. Do NOT mention any human names in your ouptut. DO mention company names where appropriate.
+      ONE SENTENCE MAXIMUM. Shorter sentences are better. Do NOT mention any human names in your ouptut. PLEASE mention company names where appropriate.
 
-      Make every roast unique. Be careful not to repeat formats or jokes.
+      Make every roast unique and specific to the person. Use the resume below as reference: 
     
       ${body.text}
 
-      Here are some examples roasts based on the text above:
+      Here are some examples roasts based on the text above. Be careful not to repeat:
       roast: worked at google? classic...
       roast: you switch jobs more than my mum switch clothes. I guess that's okay nowadays...
       roast: is "Founder" codename for "unemployed"? I wish you the best I guess...
       roast: it's almost like you enjoy using the words "delivered", "authored" and "built". Want some resume with your buzzwords?
-      roast: brigham young university? I bet their parties are fun...
-      ${body.prevRoasts?.map((roast) => `roast: ${roast}`).join("\n") ?? ""}
+      ${prev}
     `;
 
     stage = 3;

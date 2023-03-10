@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import axios from "axios";
 
 import Main from "../components/Main";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { RingLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
@@ -47,7 +47,6 @@ const ScriptLine = ({ text, delay }) => {
 };
 
 const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
-  console.log({ prevRoasts });
   const { status, data } = useQuery(
     ["question", id],
     async () => {
@@ -114,27 +113,86 @@ const script = [
   "analyzing your work experience...",
   "...this is a lot.",
   "[[ROAST1]]",
-  "we're off to a great start...",
   "[[ROAST2]]",
+  "we're off to a great start...",
   `this is my favorite thing to read on a ${new Date().toLocaleString("en-us", {
     weekday: "long",
   })}...`,
   "[[ROAST3]]",
   "are you sure you didn't just copy-paste this resume from a LinkedIn template?",
-  "[[ROAST4]]",
   "I'm not saying I'm bored but....",
-  "[[ROAST5]]",
+  "[[ROAST4]]",
   "that's it. i'm done.",
   "i guess the important thing is that you believe in yourself...",
   "bye. i can't wait to do this again",
 ];
 
+const useRoasts = ({
+  resume,
+  enabled,
+}: {
+  resume: string;
+  enabled: boolean;
+}) => {
+  const [roasts, setRoasts] = React.useState([]);
+
+  const fetch = React.useCallback(async () => {
+    const res = await axios.post("/api/calls/roast", {
+      text: resume,
+      prevRoasts: roasts.length > 0 ? roasts : undefined,
+    });
+    return res.data;
+  }, [resume, roasts]);
+
+  const options = (enabled: boolean, onSuccess: (data) => void) => {
+    return {
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      cacheTime: Infinity,
+      enabled: enabled,
+      onSuccess: onSuccess,
+    };
+  };
+
+  const result1 = useQuery(
+    ["question", 1],
+    fetch,
+    options(true, (data) => {
+      setRoasts((prev) => [...prev, data.answer]);
+    })
+  );
+  const result2 = useQuery(
+    ["question", 2],
+    fetch,
+    options(!!result1.data, (data) => {
+      setRoasts((prev) => [...prev, data.answer]);
+    })
+  );
+  const result3 = useQuery(
+    ["question", 3],
+    fetch,
+    options(!!result2.data, (data) => {
+      setRoasts((prev) => [...prev, data.answer]);
+    })
+  );
+  const result4 = useQuery(
+    ["question", 4],
+    fetch,
+    options(!!result3.data, (data) => {
+      setRoasts((prev) => [...prev, data.answer]);
+    })
+  );
+
+  return roasts;
+};
+
 const Handbook: NextPage = () => {
   const [question, setQuestion] = React.useState("");
-  const [status, setStatus] = React.useState("idle");
-  const [show, setShow] = React.useState(false);
-  const [prevRoasts, setPrevRoasts] = React.useState([]);
+  const [status, setStatus] = React.useState<
+    "idle" | "loading" | "error" | "success"
+  >("idle");
   const searchRef = React.useRef<HTMLTextAreaElement>();
+  const roasts = useRoasts({ resume: question, enabled: status !== "idle" });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -145,7 +203,7 @@ const Handbook: NextPage = () => {
     if (status === "loading") {
       setTimeout(() => {
         setStatus("success");
-      }, 2000);
+      }, 4000);
     }
   }, [status]);
 
@@ -203,6 +261,7 @@ const Handbook: NextPage = () => {
                 <>{null}</>
               )}
             </form>
+
             {/* <button onClick={() => setShow(true)}>Start</button> */}
             <AnimatePresence>
               {status === "loading" ? (
@@ -216,61 +275,41 @@ const Handbook: NextPage = () => {
                   <RingLoader size={80} className="" color="white" />
                 </motion.div>
               ) : status === "success" ? (
-                <motion.div key="joy">
-                  {/* <section className="flex flex-col rounded-md bg-white/50 p-2 text-left">
-                    <p>🤖 ChatBOM:</p>
-                    <i className="mt-4">{answer}</i>
-                  </section>
-                  <p className="mt-4">Sections that may be relevant: </p> */}
-                  <AnimatePresence>
-                    {/* <Delay key="relevant-sections" delay={1000}> */}
-                    <motion.div
-                      initial={{ y: 0, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                    >
-                      {script.map((answer, index) => {
-                        return (
-                          <motion.div
-                            key={answer}
-                            initial={{ y: 0, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{
-                              y: 100,
-                              duration: 0.5,
-                              delay: 7 * index,
-                            }}
-                            className="mt-2"
-                          >
-                            {answer.includes("ROAST") ? (
-                              <Roast
-                                id={index}
-                                resume={question}
-                                prevRoasts={prevRoasts}
-                                addRoast={(roast) =>
-                                  setPrevRoasts((prev) => [...prev, roast])
-                                }
-                                delay={7000 * index}
-                              />
-                            ) : (
-                              <ScriptLine
-                                key={index}
-                                text={answer}
-                                delay={7000 * index}
-                              />
-                            )}
-                          </motion.div>
-                        );
-                      })}
-                    </motion.div>
-                    {/* </Delay> */}
-                  </AnimatePresence>
-                </motion.div>
+                <div className={`${ibm.className} text-white`}>
+                  <Typewriter
+                    onInit={(typewriter) => {
+                      typewriter.pauseFor(3000);
+
+                      let roastCount = 0;
+                      for (const next of script) {
+                        if (next.includes("ROAST")) {
+                          typewriter.pauseFor(5000);
+                          console.log(roasts[roastCount]);
+                          typewriter.typeString(roasts[roastCount]);
+                          roastCount += 1;
+                        } else {
+                          typewriter.pauseFor(2000);
+                          typewriter.typeString(next);
+                        }
+
+                        typewriter.pauseFor(1000);
+                        typewriter.typeString("<br />");
+                        typewriter.pauseFor(50);
+                        typewriter.typeString("<br />");
+                      }
+
+                      typewriter.start();
+                    }}
+                    options={{
+                      delay: 60,
+                    }}
+                  />
+                </div>
               ) : (
                 <></>
-                // <pre className="mt-4">{data}</pre>
               )}
             </AnimatePresence>
-            <div className="mt-2 flex justify-center text-center text-white">
+            <div className="fixed bottom-2 mt-2 flex justify-center text-center text-white">
               <div className="mr-1">by</div>
               <motion.div whileHover={{ y: -5 }}>
                 <a href="https://www.linkedin.com/in/jacob-braswell/">
