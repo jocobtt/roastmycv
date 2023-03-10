@@ -228,7 +228,7 @@ const Handbook: NextPage = () => {
         <meta name="description" content="Talk to the scriptures." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="to-blackbg-gradient-to-b min-h-screen bg-gradient-to-b  from-gray-700 via-gray-900  to-black pt-4 pb-4 pb-32">
+      <div className="min-h-screen bg-black pt-4  pb-32">
         <nav className="flex justify-center">
           <div className="item-center flex flex-col justify-start">
             <p
@@ -315,7 +315,7 @@ const Handbook: NextPage = () => {
                 <></>
               )}
             </AnimatePresence>
-            <div className="flex justify-center text-center text-white mt-4">
+            <div className="mt-4 flex justify-center text-center text-white">
               <div className="mr-1">by</div>
               <motion.div whileHover={{ y: -5 }}>
                 <a href="https://www.linkedin.com/in/jacob-braswell/">
