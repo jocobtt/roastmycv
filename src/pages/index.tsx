@@ -270,6 +270,20 @@ const Handbook: NextPage = () => {
                 // <pre className="mt-4">{data}</pre>
               )}
             </AnimatePresence>
+            <div className="mt-2 flex justify-center text-center text-white">
+              <div className="mr-1">by</div>
+              <motion.div whileHover={{ y: -5 }}>
+                <a href="https://www.linkedin.com/in/jacob-braswell/">
+                  Jacob Braswell
+                </a>
+              </motion.div>
+              <div className="mx-1">
+                {` `}&{` `}
+              </div>
+              <motion.div whileHover={{ y: -5 }}>
+                <a href="https://www.linkedin.com/in/ztai">Isaac Tai</a>
+              </motion.div>
+            </div>
           </section>
         </section>
       </div>
