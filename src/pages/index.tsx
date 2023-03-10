@@ -101,7 +101,7 @@ const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
               .start();
           }}
           options={{
-            delay: 30,
+            delay: 10,
           }}
         />
       )}
