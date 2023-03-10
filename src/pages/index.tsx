@@ -232,7 +232,7 @@ const Handbook: NextPage = () => {
         <nav className="flex justify-center">
           <div className="item-center flex flex-col justify-start">
             <p
-              className={`5x-10 max-w-sm text-center text-3xl text-white ${monoton.className}`}
+              className={`5x-10 max-w-sm text-center text-4xl text-white ${monoton.className}`}
             >
               roast my resume
             </p>
@@ -246,7 +246,7 @@ const Handbook: NextPage = () => {
           </button>
         </div> */}
         </nav>
-        <section className="mt-1 flex w-screen flex-col items-center">
+        <section className="mt-3 flex w-screen flex-col items-center">
           <section className="flex w-96 flex-col px-3">
             <form onSubmit={handleSubmit} className="mb-4">
               <textarea
@@ -326,7 +326,7 @@ const Handbook: NextPage = () => {
                 {` `}&{` `}
               </div>
               <motion.div whileHover={{ y: -5 }}>
-                <a href="https://www.linkedin.com/in/ztai">Isaac Tai</a>
+                <a href="https://twitter.com/hi_im_dev_">Isaac Tai</a>
               </motion.div>
             </div>
           </section>
