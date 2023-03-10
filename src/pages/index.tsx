@@ -1,17 +1,15 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 
-import Main from "../components/Main";
 import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { RingLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import { NextPage } from "next";
-import { Delay } from "../components/animation/Delay";
-import { Monoton, IBM_Plex_Mono } from "@next/font/google";
+import { Metal_Mania, IBM_Plex_Mono } from "@next/font/google";
 import Typewriter from "typewriter-effect";
 
-const monoton = Monoton({
+const monoton = Metal_Mania({
   weight: "400",
   subsets: ["latin"],
 });
@@ -83,7 +81,7 @@ const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
   }, [addRoast, prevRoasts, text]);
   return (
     <section
-      className={`flex flex-col rounded-md p-2 text-left lowercase text-white ${ibm.className}`}
+      className={`flex flex-col rounded-md p-2 text-left lowercase lowercase text-white ${ibm.className}`}
     >
       {status === "loading" ? (
         <p>...</p>
@@ -110,14 +108,15 @@ const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
 
 const script = [
   "loading your career history...",
-  "analyzing your work experience...",
-  "...this is a lot.",
+  "enthusiastically analyzing your work experience...",
+  "geez.",
+  "this is a lot.",
   "[[ROAST1]]",
   "[[ROAST2]]",
-  "we're off to a great start...",
+  "we're off to a great start.",
   `this is my favorite thing to read on a ${new Date().toLocaleString("en-us", {
     weekday: "long",
-  })}...`,
+  })}.`,
   "[[ROAST3]]",
   "are you sure you didn't just copy-paste this resume from a LinkedIn template?",
   "I'm not saying I'm bored but....",
@@ -157,7 +156,7 @@ const useRoasts = ({
   const result1 = useQuery(
     ["question", 1],
     fetch,
-    options(true, (data) => {
+    options(enabled, (data) => {
       setRoasts((prev) => [...prev, data.answer]);
     })
   );
@@ -183,7 +182,7 @@ const useRoasts = ({
     })
   );
 
-  return roasts;
+  return { status: result4.status, roasts };
 };
 
 const Handbook: NextPage = () => {
@@ -192,18 +191,23 @@ const Handbook: NextPage = () => {
     "idle" | "loading" | "error" | "success"
   >("idle");
   const searchRef = React.useRef<HTMLTextAreaElement>();
-  const roasts = useRoasts({ resume: question, enabled: status !== "idle" });
+  const [start, setStart] = React.useState(false);
+  const { status: roastsStatus, roasts } = useRoasts({
+    resume: question,
+    enabled: start,
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setStatus("loading");
+    setStart(true);
   };
 
   React.useEffect(() => {
     if (status === "loading") {
       setTimeout(() => {
         setStatus("success");
-      }, 4000);
+      }, 6000);
     }
   }, [status]);
 
@@ -226,15 +230,17 @@ const Handbook: NextPage = () => {
       </Head>
       <div className="to-blackbg-gradient-to-b min-h-screen bg-gradient-to-b  from-gray-700 via-gray-900  to-black pt-4 pb-4 pb-32">
         <nav className="flex justify-center">
-          <p
-            className={`5x-10 max-w-sm py-3 text-3xl text-white ${monoton.className}`}
-          >
-            roast my resume
-          </p>
+          <div className="item-center flex flex-col justify-start">
+            <p
+              className={`5x-10 max-w-sm text-center text-3xl text-white ${monoton.className}`}
+            >
+              roast my resume
+            </p>
+          </div>
           {/* <div className="ml-auto">
           <button
-            className="bg-gray/10 hover:bg-gray/20 rounded-full px-10 py-3 font-semibold text-white no-underline transition"
-            onClick={authSessionData ? () => signOut() : () => signIn("google")}
+          className="bg-gray/10 hover:bg-gray/20 rounded-full px-10 py-3 font-semibold text-white no-underline transition"
+          onClick={authSessionData ? () => signOut() : () => signIn("google")}
           >
             {authSessionData ? "Sign out" : "Sign in"}
           </button>
@@ -247,12 +253,12 @@ const Handbook: NextPage = () => {
                 ref={searchRef}
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Input your resume here."
-                className="flex h-48 w-full resize-none  scroll-m-0 flex-col rounded-md border-2 border-white bg-black p-2 text-xl text-white"
+                placeholder="resume goes here. don't worry about formatting it."
+                className="border-1 flex h-48 w-full  resize-none scroll-m-0 flex-col rounded-md border-white bg-black p-2 text-xl text-white"
               />
               {status === "idle" ? (
                 <button
-                  className="mt-2 h-12 w-full rounded-md border-2 border-white text-xl text-white hover:bg-white hover:text-black"
+                  className="border-1 mt-2 h-12 w-full rounded-md border-white text-xl text-white hover:bg-white hover:text-black"
                   type="submit"
                 >
                   roast me, I guess.
@@ -264,7 +270,7 @@ const Handbook: NextPage = () => {
 
             {/* <button onClick={() => setShow(true)}>Start</button> */}
             <AnimatePresence>
-              {status === "loading" ? (
+              {start && roastsStatus === "loading" ? (
                 <motion.div
                   key="loading"
                   className="flex justify-center"
@@ -274,11 +280,11 @@ const Handbook: NextPage = () => {
                 >
                   <RingLoader size={80} className="" color="white" />
                 </motion.div>
-              ) : status === "success" ? (
-                <div className={`${ibm.className} text-white`}>
+              ) : status === "success" && roastsStatus === "success" ? (
+                <div className={`${ibm.className} mb-20 lowercase text-white`}>
                   <Typewriter
                     onInit={(typewriter) => {
-                      typewriter.pauseFor(3000);
+                      typewriter.pauseFor(2000);
 
                       let roastCount = 0;
                       for (const next of script) {
@@ -309,7 +315,7 @@ const Handbook: NextPage = () => {
                 <></>
               )}
             </AnimatePresence>
-            <div className="fixed bottom-2 mt-2 flex justify-center text-center text-white">
+            <div className="flex justify-center text-center text-white mt-4">
               <div className="mr-1">by</div>
               <motion.div whileHover={{ y: -5 }}>
                 <a href="https://www.linkedin.com/in/jacob-braswell/">

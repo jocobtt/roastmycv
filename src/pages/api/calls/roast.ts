@@ -31,29 +31,34 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const prev =
       body.prevRoasts?.map((roast) => `roast: ${roast}`).join("\n") ?? "";
-    console.log({ prev });
+
     stage = 2;
     // Construct the prompt
     const prompt = `
       You are the world's foremost expert on script writing and copywriting. A few years ago a project called pudding.cool went viral online for roasting people's music listening habits.
 
-      Your job is to create a version of this for roasting career resumes and CVs.
+      Your job is to create a version of this that is suitable for roasting career resumes and CVs.
 
-      Directions: 
-      Tone should be extremely passive aggressive, monotone. Act bored, as if you do this all day and can’t wait to go home. 
-      ONE SENTENCE MAXIMUM. Shorter sentences are better. Do NOT mention any human names in your ouptut. PLEASE mention company names where appropriate.
+      Be extremely specific. Tone should be passive aggressive, monotone. 
+      
+      ONE SENTENCE MAXIMUM. Do NOT mention any human names in your ouptut. DO mention company names.
 
-      Make every roast unique and specific to the person. Use the resume below as reference: 
-    
+      This is the resume you are roasting:
+      [[RESUME START]] 
       ${body.text}
-
-      Here are some examples roasts based on the text above. Be careful not to repeat:
+      [[RESUME END]] 
+    
+      Sample roasts:
       roast: worked at google? classic...
       roast: you switch jobs more than my mum switch clothes. I guess that's okay nowadays...
-      roast: is "Founder" codename for "unemployed"? I wish you the best I guess...
-      roast: it's almost like you enjoy using the words "delivered", "authored" and "built". Want some resume with your buzzwords?
       ${prev}
-    `;
+      `;
+    // Here are some examples roasts based on the text above. Don't repeat similar jokes:
+    // roast: worked at google? classic...
+    // roast: you switch jobs more than my mum switch clothes. I guess that's okay nowadays...
+    // roast: is "Founder" codename for "unemployed"? I wish you the best I guess...
+    // roast: it's almost like you enjoy using the words "delivered", "authored" and "built". Want some resume with your buzzwords?
+    // roast: brigham young university? I bet their parties are fun...
 
     stage = 3;
     console.log("trying");
@@ -66,8 +71,8 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
           { role: "system", content: prompt },
           { role: "user", content: "roast: " },
         ],
-        temperature: 0.9,
-        max_tokens: 150,
+        temperature: 1.0,
+        max_tokens: 100,
         top_p: 1,
         frequency_penalty: 0.0,
         presence_penalty: 0.6,
