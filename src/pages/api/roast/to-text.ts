@@ -65,7 +65,11 @@ const toText = async (req: NextApiRequest, res: NextApiResponse) => {
     form.uploadDir = "./";
     form.keepExtensions = true;
     stage = 2;
-    const { err, fields, files } = await new Promise((res, rej) => {
+    const { files } = await new Promise<{
+      err: Error;
+      fields: formidable.Fields;
+      files: formidable.Files;
+    }>((res, rej) => {
       form.parse(req, (err, fields, files) => {
         console.log({ err, fields, files });
         if (err) {
@@ -76,7 +80,6 @@ const toText = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     stage = 3;
-    console.log("path", files.resume.path);
     const text = await extractTextFromPDF(files.resume.path);
     stage = 4;
     res.status(200).json({ text: text });
