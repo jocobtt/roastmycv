@@ -1,3 +1,4 @@
+import fs from "fs";
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 import axios from "axios";
@@ -38,8 +39,8 @@ const getOCRText = async (file) => {
   return text;
 };
 
-const extractTextFromPDF = async (path) => {
-  const doc = await pdfjs.getDocument(path).promise;
+const extractTextFromPDF = async (file) => {
+  const doc = await pdfjs.getDocument(file).promise;
   const page1 = await doc.getPage(1);
   const content = await page1.getTextContent();
   const strings = content.items
@@ -62,7 +63,6 @@ const toText = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     stage = 1;
     const form = new formidable.IncomingForm();
-    form.uploadDir = "./";
     form.keepExtensions = true;
     stage = 2;
     const { files } = await new Promise<{

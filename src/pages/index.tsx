@@ -8,6 +8,13 @@ import Head from "next/head";
 import { NextPage } from "next";
 import { Metal_Mania, IBM_Plex_Mono } from "@next/font/google";
 import Typewriter from "typewriter-effect";
+import * as pdfjs from "pdfjs-dist";
+
+declare global {
+  interface Window {
+    PDFJS: typeof pdfjs;
+  }
+}
 
 const monoton = Metal_Mania({
   weight: "400",
@@ -110,8 +117,12 @@ const Handbook: NextPage = () => {
   const [text, setText] = React.useState(undefined);
   const { status: roastsStatus, roasts } = useRoasts({
     resume: text,
-    enabled: !!text,
+    enabled: false,
   });
+
+  React.useEffect(() => {
+    window.PDFJS = pdfjs;
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -121,19 +132,40 @@ const Handbook: NextPage = () => {
     // Send Form data
     const formData = new FormData();
     formData.append("resume", file);
-    fetch("/api/roast/to-text", {
-      method: "POST",
-      body: formData,
-      headers: {
-        encoding: "multipart/form-data",
-      },
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        setText(json.text);
-        setStatus("success");
-      })
-      .catch((err) => window.alert("There was an error processing the pdf."));
+    const fileReader = new FileReader();
+    fileReader.onload = e;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const arrayBuffer = reader.result;
+      const doc = await pdfjs.getDocument(arrayBuffer).promise;
+      const page1 = await doc.getPage(1);
+      const content = await page1.getTextContent();
+      const strings = content.items
+        .map(function (item) {
+          return (item as { str: string }).str;
+        })
+        .join("");
+      setText(strings);
+      setStatus("success");
+    };
+    reader.onerror = () => {
+      window.alert("There was an error processing the pdf.");
+    };
+    reader.readAsArrayBuffer(file);
+
+    // fetch("/api/roast/to-text", {
+    //   method: "POST",
+    //   body: formData,
+    //   headers: {
+    //     encoding: "multipart/form-data",
+    //   },
+    // })
+    //   .then((res) => res.json())
+    //   .then((json) => {
+    //     setText(json.text);
+    //     setStatus("success");
+    //   })
+    //   .catch((err) => window.alert("There was an error processing the pdf."));
   };
 
   React.useEffect(() => {
@@ -250,9 +282,7 @@ const Handbook: NextPage = () => {
                     </label>
                     {!file && <p className="pl-1">or drag and drop</p>}
                   </div>
-                  <p className="text-xs text-gray-500">
-                    PDF up to 10MB
-                  </p>
+                  <p className="text-xs text-gray-500">PDF up to 10MB</p>
                 </div>
               </div>
               {status === "idle" ? (
