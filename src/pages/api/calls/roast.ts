@@ -33,6 +33,7 @@ const ask = async (req: NextApiRequest, res: NextApiResponse) => {
       body.prevRoasts?.map((roast) => `roast: ${roast}`).join("\n") ?? "";
 
     stage = 2;
+    console.log(prev);
     // Construct the prompt
     const prompt = `
       You are the world's foremost expert on script writing and copywriting. A few years ago a project called pudding.cool went viral online for roasting people's music listening habits.

@@ -32,11 +32,11 @@ const script = [
   })}.`,
   "[[ROAST3]]",
   "are you sure you didn't just copy-paste this resume from a LinkedIn template?",
-  "I'm not saying I'm bored but....",
   "[[ROAST4]]",
   "that's it. i'm done.",
   "i guess the important thing is that you believe in yourself...",
   "bye. i can't wait to do this again",
+  "END"
 ];
 
 const useRoasts = ({
