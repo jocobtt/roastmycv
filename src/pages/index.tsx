@@ -36,7 +36,7 @@ const script = [
   "that's it. i'm done.",
   "i guess the important thing is that you believe in yourself...",
   "bye. i can't wait to do this again",
-  "END"
+  "END",
 ];
 
 const useRoasts = ({
@@ -144,7 +144,7 @@ const Handbook: NextPage = () => {
 
   const handleUpload = (file) => {
     setFile(file);
-    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+    const allowedTypes = ["application/pdf"];
     if (!allowedTypes.includes(file.type)) {
       alert("Please select a PDF, JPEG or PNG file.");
       return;
@@ -243,7 +243,7 @@ const Handbook: NextPage = () => {
                         id="file"
                         name="resume"
                         type="file"
-                        accept=".pdf,.jpeg,.png"
+                        accept=".pdf"
                         onChange={(e) => handleUpload(e.target.files[0])}
                         className="sr-only"
                       />

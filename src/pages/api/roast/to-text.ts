@@ -44,7 +44,8 @@ const extractTextFromPDF = async (path) => {
   const content = await page1.getTextContent();
   const strings = content.items
     .map(function (item) {
-      return item.str;
+      // eslint-disable-next-line
+      return (item as { str: string }).str;
     })
     .join("");
   return strings;
