@@ -82,19 +82,6 @@ const uploadToGCS = async (path): Promise<string> => {
     return stream;
   };
 
-  // console.log({ file });
-
-  // await new Promise((res, rej) => {
-  //   fileToUpload
-  //     .createWriteStream()
-  //     .on("error", (err) => rej(err))
-  //     .on("finish", () => {
-  //       console.log(`File ${pdfFilename} uploaded successfully.`);
-  //       res("");
-  //     })
-  //     .end(file);
-  // });
-
   await new Promise((res, rej) => {
     createReadStream(path)
       .pipe(createWriteStream(pdfFilename, "application/pdf"))
@@ -109,13 +96,6 @@ const uploadToGCS = async (path): Promise<string> => {
 
 const extractTextFromPDF = async (file) => {
   // Upload to GCS
-  // console.log("file => buffer");
-  // const pdfBuffer = await new Promise((resolve, reject) => {
-  //   streamToBuffer(file, (err, buffer) => {
-  //     if (err) reject(err);
-  //     resolve(buffer);
-  //   });
-  // });
   console.log("sending to GCS");
   const url = await uploadToGCS(file.path);
   console.log({ url });
