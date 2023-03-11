@@ -117,7 +117,7 @@ const Handbook: NextPage = () => {
   const [text, setText] = React.useState(undefined);
   const { status: roastsStatus, roasts } = useRoasts({
     resume: text,
-    enabled: false,
+    enabled: !!text,
   });
 
   React.useEffect(() => {
@@ -131,41 +131,21 @@ const Handbook: NextPage = () => {
 
     // Send Form data
     const formData = new FormData();
-    formData.append("resume", file);
-    const fileReader = new FileReader();
-    fileReader.onload = e;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const arrayBuffer = reader.result;
-      const doc = await pdfjs.getDocument(arrayBuffer).promise;
-      const page1 = await doc.getPage(1);
-      const content = await page1.getTextContent();
-      const strings = content.items
-        .map(function (item) {
-          return (item as { str: string }).str;
-        })
-        .join("");
-      setText(strings);
-      setStatus("success");
-    };
-    reader.onerror = () => {
-      window.alert("There was an error processing the pdf.");
-    };
-    reader.readAsArrayBuffer(file);
+    formData.set("resume", file);
 
-    // fetch("/api/roast/to-text", {
-    //   method: "POST",
-    //   body: formData,
-    //   headers: {
-    //     encoding: "multipart/form-data",
-    //   },
-    // })
-    //   .then((res) => res.json())
-    //   .then((json) => {
-    //     setText(json.text);
-    //     setStatus("success");
-    //   })
-    //   .catch((err) => window.alert("There was an error processing the pdf."));
+    fetch("/api/roast/to-text", {
+      method: "POST",
+      body: formData,
+      headers: {
+        encoding: "multipart/form-data",
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        setText(json.text);
+        setStatus("success");
+      })
+      .catch((err) => window.alert("There was an error processing the pdf."));
   };
 
   React.useEffect(() => {
@@ -175,12 +155,12 @@ const Handbook: NextPage = () => {
   }, []);
 
   const handleUpload = (file) => {
-    setFile(file);
     const allowedTypes = ["application/pdf"];
     if (!allowedTypes.includes(file.type)) {
       alert("Please select a PDF, JPEG or PNG file.");
       return;
     }
+    setFile(file);
   };
 
   const handleDragOver = (event) => {
@@ -256,7 +236,7 @@ const Handbook: NextPage = () => {
                   >
                     <path
                       d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      stroke-width="2"
+                      strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />

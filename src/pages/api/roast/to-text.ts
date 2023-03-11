@@ -1,15 +1,20 @@
-import fs from "fs";
+import fs, { createReadStream } from "fs";
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 import axios from "axios";
 import formidable from "formidable-serverless";
 import * as pdfjs from "pdfjs-dist";
+import { Storage } from "@google-cloud/storage";
+import { randomUUID } from "crypto";
+import streamToBuffer from "stream-to-buffer";
 
 // Auth token generate
 // async function getToken() {
 //   const auth = new GoogleAuth({
-//     scopes: SCOPES,
+//     keyFileName: process.env.keyfilePath,
+//     scopes: ['https://www.googleapis.com/auth/cloud-platform'],
 //   });
+//   const client = await auth.getClient();
 //   const accessToken = await auth.getAccessToken();
 //   return accessToken.token;
 // }
@@ -25,7 +30,7 @@ const getOCRText = async (file) => {
   const config = {
     maxBodyLength: Infinity,
     headers: {
-      Authorization: "Bearer " + process.env.GOOGLE_AUTH_TOKEN,
+      Authorization: "Bearer ${accessToken}",
       "Content-Type": "text/plain",
     },
     data: data,
@@ -39,8 +44,83 @@ const getOCRText = async (file) => {
   return text;
 };
 
+const credential = JSON.parse(
+  Buffer.from(process.env.GOOGLE_SERVICE_KEY, "base64").toString("utf-8")
+);
+
+console.log(credential);
+
+const storage = new Storage({
+  projectId: "seventh-history-374820",
+  credentials: {
+    client_email: credential.client_email,
+    private_key: credential.private_key,
+  },
+});
+
+const uploadToGCS = async (path): Promise<string> => {
+  // Set the name of the PDF file to be uploaded and the destination bucket in GCS
+  const bucketName = "roastytoasty";
+  const pdfFilename = `${randomUUID()}.pdf`;
+
+  // Upload the PDF file to GCS
+  const bucket = storage.bucket(bucketName);
+  const fileToUpload = bucket.file(pdfFilename);
+  const url = await fileToUpload.getSignedUrl({
+    action: "read",
+    expires: "03-09-2024",
+  });
+
+  const createWriteStream = (filename: string, contentType?: string) => {
+    const ref = bucket.file(filename);
+
+    const stream = ref.createWriteStream({
+      gzip: true,
+      contentType: contentType,
+    });
+
+    return stream;
+  };
+
+  // console.log({ file });
+
+  // await new Promise((res, rej) => {
+  //   fileToUpload
+  //     .createWriteStream()
+  //     .on("error", (err) => rej(err))
+  //     .on("finish", () => {
+  //       console.log(`File ${pdfFilename} uploaded successfully.`);
+  //       res("");
+  //     })
+  //     .end(file);
+  // });
+
+  await new Promise((res, rej) => {
+    createReadStream(path)
+      .pipe(createWriteStream(pdfFilename, "application/pdf"))
+      .on("error", (err) => rej(err))
+      .on("finish", () => {
+        res("");
+      });
+  });
+
+  return url[0];
+};
+
 const extractTextFromPDF = async (file) => {
-  const doc = await pdfjs.getDocument(file).promise;
+  // Upload to GCS
+  // console.log("file => buffer");
+  // const pdfBuffer = await new Promise((resolve, reject) => {
+  //   streamToBuffer(file, (err, buffer) => {
+  //     if (err) reject(err);
+  //     resolve(buffer);
+  //   });
+  // });
+  console.log("sending to GCS");
+  const url = await uploadToGCS(file.path);
+  console.log({ url });
+
+  const doc = await pdfjs.getDocument(url).promise;
   const page1 = await doc.getPage(1);
   const content = await page1.getTextContent();
   const strings = content.items
@@ -80,7 +160,8 @@ const toText = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     stage = 3;
-    const text = await extractTextFromPDF(files.resume.path);
+    const text = await extractTextFromPDF(files.resume);
+    console.log({ text });
     stage = 4;
     res.status(200).json({ text: text });
   } catch (e) {
