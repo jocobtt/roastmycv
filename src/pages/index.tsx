@@ -19,93 +19,6 @@ const ibm = IBM_Plex_Mono({
   subsets: ["latin"],
 });
 
-const ScriptLine = ({ text, delay }) => {
-  return (
-    <section
-      className={`flex flex-col rounded-md p-2 text-left lowercase ${ibm.className} text-white`}
-    >
-      <p className="mt-2 whitespace-pre-line"></p>
-      <Typewriter
-        onInit={(typewriter) => {
-          typewriter
-            .pauseFor(delay + 100)
-            .typeString(text)
-            .callFunction((state) => {
-              state.elements.cursor.style.animation = "none";
-              state.elements.cursor.style.display = "none";
-            })
-            .start();
-        }}
-        options={{
-          delay: 30,
-        }}
-      />
-    </section>
-  );
-};
-
-const Roast = ({ id, resume, prevRoasts, addRoast, delay }) => {
-  const { status, data } = useQuery(
-    ["question", id],
-    async () => {
-      const res = await axios.post("/api/calls/roast", {
-        text: resume,
-        prevRoasts: prevRoasts,
-      });
-      return res.data;
-    },
-    {
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      cacheTime: Infinity,
-    }
-  );
-
-  React.useEffect(() => {
-    // const scrollingElement = document.scrollingElement || document.body;
-    // scrollingElement.scrollTop = scrollingElement.scrollHeight;
-  }, []);
-
-  const text = React.useMemo(() => {
-    if (status === "loading") {
-      return "...";
-    }
-    const lower = data.answer.charAt(0).toLowerCase() + data.answer.slice(1);
-    return lower;
-  }, [status, data]);
-
-  React.useEffect(() => {
-    if (text !== "..." && prevRoasts.includes(text) === false) {
-      addRoast(text);
-    }
-  }, [addRoast, prevRoasts, text]);
-  return (
-    <section
-      className={`flex flex-col rounded-md p-2 text-left lowercase lowercase text-white ${ibm.className}`}
-    >
-      {status === "loading" ? (
-        <p>...</p>
-      ) : (
-        <Typewriter
-          onInit={(typewriter) => {
-            typewriter
-              .pauseFor(delay)
-              .typeString(text)
-              .callFunction((state) => {
-                state.elements.cursor.style.animation = "none";
-                state.elements.cursor.style.display = "none";
-              })
-              .start();
-          }}
-          options={{
-            delay: 10,
-          }}
-        />
-      )}
-    </section>
-  );
-};
-
 const script = [
   "loading your career history...",
   "enthusiastically analyzing your work experience...",
@@ -192,34 +105,67 @@ const Handbook: NextPage = () => {
   >("idle");
   const searchRef = React.useRef<HTMLTextAreaElement>();
   const [start, setStart] = React.useState(false);
+  const [file, setFile] = React.useState(undefined);
+  const [dragOver, setDragOver] = React.useState(false);
+  const [text, setText] = React.useState(undefined);
   const { status: roastsStatus, roasts } = useRoasts({
-    resume: question,
-    enabled: start,
+    resume: text,
+    enabled: !!text,
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setStatus("loading");
     setStart(true);
-  };
 
-  React.useEffect(() => {
-    if (status === "loading") {
-      setTimeout(() => {
+    // Send Form data
+    const formData = new FormData();
+    formData.append("resume", file);
+    fetch("/api/roast/to-text", {
+      method: "POST",
+      body: formData,
+      headers: {
+        encoding: "multipart/form-data",
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        setText(json.text);
         setStatus("success");
-      }, 6000);
-    }
-  }, [status]);
-
-  const handleKeyDown = (e) => {
-    if (e.which === 13 && !e.shiftKey) {
-      handleSubmit(e);
-    }
+      })
+      .catch((err) => window.alert("There was an error processing the pdf."));
   };
 
   React.useEffect(() => {
-    searchRef.current.focus();
+    if (searchRef.current) {
+      searchRef.current.focus();
+    }
   }, []);
+
+  const handleUpload = (file) => {
+    setFile(file);
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please select a PDF, JPEG or PNG file.");
+      return;
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    setDragOver(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    handleUpload(file);
+  };
 
   return (
     <>
@@ -237,25 +183,78 @@ const Handbook: NextPage = () => {
               roast my resume
             </p>
           </div>
-          {/* <div className="ml-auto">
-          <button
-          className="bg-gray/10 hover:bg-gray/20 rounded-full px-10 py-3 font-semibold text-white no-underline transition"
-          onClick={authSessionData ? () => signOut() : () => signIn("google")}
-          >
-            {authSessionData ? "Sign out" : "Sign in"}
-          </button>
-        </div> */}
         </nav>
         <section className="mt-3 flex w-screen flex-col items-center">
           <section className="flex w-96 flex-col px-3">
             <form onSubmit={handleSubmit} className="mb-4">
-              <textarea
+              {/* <textarea
                 ref={searchRef}
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="resume goes here. don't worry about formatting it."
                 className="border-1 flex h-48 w-full  resize-none scroll-m-0 flex-col rounded-md border-white bg-black p-2 text-xl text-white"
               />
+              <div
+                className="h-48 w-48 rounded-md border-2 border-white p-3"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                <p className="text-white">Drag and drop files here</p>
+                <input
+                  type="file"
+                  accept=".pdf,.jpeg,.png"
+                  onChange={(e) => handleUpload(e.target.files[0])}
+                />
+              </div> */}
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex max-w-lg justify-center rounded-md border-2 border-dashed ${
+                  dragOver ? `border-red-300` : `border-gray-300`
+                }  px-6 pt-5 pb-6`}
+              >
+                <div className="space-y-1 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="flex justify-center text-sm text-gray-600">
+                    <label
+                      htmlFor="file"
+                      className={`relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500`}
+                    >
+                      {file ? (
+                        <span className="text-center">File Received.</span>
+                      ) : (
+                        <span className="">Upload a file</span>
+                      )}
+                      <input
+                        id="file"
+                        name="resume"
+                        type="file"
+                        accept=".pdf,.jpeg,.png"
+                        onChange={(e) => handleUpload(e.target.files[0])}
+                        className="sr-only"
+                      />
+                    </label>
+                    {!file && <p className="pl-1">or drag and drop</p>}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    PNG, JPG, GIF up to 10MB
+                  </p>
+                </div>
+              </div>
               {status === "idle" ? (
                 <button
                   className="border-1 mt-2 h-12 w-full rounded-md border-white text-xl text-white hover:bg-white hover:text-black"
@@ -267,8 +266,6 @@ const Handbook: NextPage = () => {
                 <>{null}</>
               )}
             </form>
-
-            {/* <button onClick={() => setShow(true)}>Start</button> */}
             <AnimatePresence>
               {start && roastsStatus === "loading" ? (
                 <motion.div
