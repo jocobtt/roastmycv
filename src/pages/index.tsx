@@ -151,7 +151,10 @@ const Handbook: NextPage = () => {
     //   .catch((err) => window.alert("There was an error processing the pdf."));
 
     // Convert PDF to text
-    const array: Uint8Array = await new Promise((resolve, reject) => {
+    const { error, array } = await new Promise<{
+      error?: Error;
+      array: Uint8Array;
+    }>((resolve, reject) => {
       const reader = new FileReader();
       // const fileByteArray: Uint8Array = [];
       reader.readAsArrayBuffer(file);
@@ -159,14 +162,18 @@ const Handbook: NextPage = () => {
         if (e.target.readyState == FileReader.DONE) {
           const arrayBuffer = e.target.result;
           const array = new Uint8Array(arrayBuffer as ArrayBuffer);
-          resolve(array);
-          //   fileByteArray
-          // for (let i = 0; i < array.length; i++) {
-          //   fileByteArray.push(array[i]);
-          // }
+          resolve({ error: undefined, array: array });
         }
       };
+      reader.onerror = (e) => {
+        reject({ error: e, array: undefined });
+      };
     });
+
+    if (error !== undefined) {
+      window.alert("There was an error processing the pdf.");
+      return;
+    }
 
     const doc = await PDFJS.getDocument(array).promise;
     const page1 = await doc.getPage(1);
