@@ -10,6 +10,7 @@ import { Metal_Mania, IBM_Plex_Mono } from "@next/font/google";
 import Typewriter from "typewriter-effect";
 import * as PDFJS from "pdfjs-dist/build/pdf";
 import * as pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
+import Image from "next/image";
 
 PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.min.js`;
 
@@ -122,6 +123,7 @@ const Handbook: NextPage = () => {
     resume: text,
     enabled: !!text,
   });
+  const [showFire, setShowFire] = React.useState(false);
 
   React.useEffect(() => {
     window.PDFJS = PDFJS;
@@ -227,7 +229,7 @@ const Handbook: NextPage = () => {
         <meta name="description" content="Talk to the scriptures." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen bg-black pt-4  pb-32">
+      <div className="relative z-10 min-h-screen bg-black  pt-4 pb-32">
         <nav className="flex justify-center">
           <div className="item-center flex flex-col justify-start">
             <p
@@ -237,7 +239,8 @@ const Handbook: NextPage = () => {
             </p>
           </div>
         </nav>
-        <section className="mt-3 flex w-screen flex-col items-center">
+
+        <section className="z-10 mt-3 flex w-screen flex-col items-center">
           <section className="flex w-96 flex-col px-3">
             <form onSubmit={handleSubmit} className="mb-4">
               {/* <textarea
@@ -308,8 +311,10 @@ const Handbook: NextPage = () => {
               </div>
               {status === "idle" ? (
                 <button
-                  className="border-1 mt-2 h-12 w-full rounded-md border-white text-xl text-white hover:bg-white hover:text-black"
+                  className="mt-4 w-full text-xl text-white hover:text-red-500 hover:underline"
                   type="submit"
+                  onPointerOver={() => setShowFire(true)}
+                  onPointerLeave={() => setShowFire(false)}
                 >
                   roast me, I guess.
                 </button>
@@ -379,6 +384,10 @@ const Handbook: NextPage = () => {
             </div>
           </section>
         </section>
+        <img
+          className={`absolute h-screen w-screen ${showFire ? "" : "hidden"}`}
+          src="https://media3.giphy.com/media/3og0Ixhm6ESVj5GqMo/giphy.gif?cid=ecf05e47nw2nqbq7r7wwn38iqgpoai7jqqiayqtzf1dhwu4k&rid=giphy.gif&ct=g"
+        />
       </div>
     </>
   );

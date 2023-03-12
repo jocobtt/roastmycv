@@ -39,6 +39,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.41.2",
     "react-hot-toast": "^2.4.0",
+    "react-share": "^4.4.1",
     "react-spinners": "^0.13.8",
     "stream-to-buffer": "^0.1.0",
     "superjson": "1.9.1",
