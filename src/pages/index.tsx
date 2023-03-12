@@ -8,11 +8,14 @@ import Head from "next/head";
 import { NextPage } from "next";
 import { Metal_Mania, IBM_Plex_Mono } from "@next/font/google";
 import Typewriter from "typewriter-effect";
-import * as pdfjs from "pdfjs-dist";
+import * as PDFJS from "pdfjs-dist/build/pdf";
+import * as pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
+
+PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.min.js`;
 
 declare global {
   interface Window {
-    PDFJS: typeof pdfjs;
+    PDFJS: typeof PDFJS;
   }
 }
 
@@ -121,31 +124,62 @@ const Handbook: NextPage = () => {
   });
 
   React.useEffect(() => {
-    window.PDFJS = pdfjs;
+    window.PDFJS = PDFJS;
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
     setStart(true);
 
     // Send Form data
-    const formData = new FormData();
-    formData.set("resume", file);
+    // const formData = new FormData();
+    // formData.set("resume", file);
 
-    fetch("/api/roast/to-text", {
-      method: "POST",
-      body: formData,
-      headers: {
-        encoding: "multipart/form-data",
-      },
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        setText(json.text);
-        setStatus("success");
+    // fetch("/api/roast/to-text", {
+    //   method: "POST",
+    //   body: formData,
+    //   headers: {
+    //     encoding: "multipart/form-data",
+    //   },
+    // })
+    //   .then((res) => res.json())
+    //   .then((json) => {
+    //     setText(json.text);
+    //     setStatus("success");
+    //   })
+    //   .catch((err) => window.alert("There was an error processing the pdf."));
+
+    // Convert PDF to text
+    const array: Uint8Array = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      // const fileByteArray: Uint8Array = [];
+      reader.readAsArrayBuffer(file);
+      reader.onloadend = (e) => {
+        if (e.target.readyState == FileReader.DONE) {
+          const arrayBuffer = e.target.result;
+          const array = new Uint8Array(arrayBuffer as ArrayBuffer);
+          resolve(array);
+          //   fileByteArray
+          // for (let i = 0; i < array.length; i++) {
+          //   fileByteArray.push(array[i]);
+          // }
+        }
+      };
+    });
+
+    const doc = await PDFJS.getDocument(array).promise;
+    const page1 = await doc.getPage(1);
+    const content = await page1.getTextContent();
+    const strings = content.items
+      .map(function (item) {
+        // eslint-disable-next-line
+        return (item as { str: string }).str;
       })
-      .catch((err) => window.alert("There was an error processing the pdf."));
+      .join("");
+
+    setText(strings);
+    setStatus("success");
   };
 
   React.useEffect(() => {
