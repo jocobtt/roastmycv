@@ -133,7 +133,7 @@ const Handbook: NextPage = () => {
     e.preventDefault();
     setStatus("loading");
     setStart(true);
-
+    setShowFire(false)
     // Send Form data
     // const formData = new FormData();
     // formData.set("resume", file);
@@ -226,7 +226,7 @@ const Handbook: NextPage = () => {
     <>
       <Head>
         <title>Roast My Resume</title>
-        <meta name="description" content="Talk to the scriptures." />
+        <meta name="description" content="passive aggresive AI" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="relative z-10 min-h-screen bg-black  pt-4 pb-32">
